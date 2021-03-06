@@ -115,7 +115,7 @@ You tell Zasha that you really appreciate all the help <%=s.g?'he':'she'%>'s pro
 
 <%=s.g?'He':'She'%> seems kind of crestfallen, but nods in agreement.
 
-But, you say, um, is there any way you can repay <%=s.g?'him':'her'%>? You don't have much cash, but maybe you could Venmo <%=s.g?'him':'her'%> as thanks for the ride? If you weren't in the middle of a snowstorm, you'd offer to buy <%=s.g?'him':'her'%> dinner somewhere... J-just dinner! Not like a date or anything!
+But, you say, um, is there any way you can repay <%=s.g?'him':'her'%>? You don't have much cash, but maybe you could Zenmo <%=s.g?'him':'her'%> as thanks for the ride? If you weren't in the middle of a snowstorm, you'd offer to buy <%=s.g?'him':'her'%> dinner somewhere... J-just dinner! Not like a date or anything!
 
 <%=s.g?'He':'She'%> shakes <%=s.g?'his':'her'%> head firmly. "No such repayment is necessary. I only do my part to protect all creatures. Farewell, <%= s.snuggled_up ? "Rabbit- erm, Juniper." : "Rabbit"%>."
 
