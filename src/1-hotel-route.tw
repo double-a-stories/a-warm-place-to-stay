@@ -8,13 +8,15 @@ Yup, nothing suspicious there.
 
 Oh, you know, just passing through. It's not important. Probably some kind of business meeting or something.
 
-Zasha nods, eager to change the subject. You ride together in silence for a minute or so. <%= story.render("Arrive at the hotel.")%>
+Zasha nods, eager to change the subject. You ride together in silence for a minute or so.
+
+<%= story.render("Arrive at the hotel.")%>
 
 <div->[[Arrive at the hotel.]]</div>
 
 
 :: Arrive at the hotel. [cold] {"position":"500,2300","sizing":"100,100"}
-Scenery whizzes past. Eventually Zasha turns off the road, and into the parking lot of a roadside hotel, just as promised. It's a meager two-story lodge, probably converted from an old house or something. It's meager, but in a quaint, charming way.
+Scenery whizzes past. Eventually Zasha turns off the road, and into the parking lot of a roadside hotel, just as promised. It's a meager two-story lodge, probably converted from an old house or something. It's small, but in a quaint, charming way.
 
 \> [[Get out of the truck.]]
 
@@ -77,7 +79,7 @@ You take a quick breather while Zasha checks into <%=s.g?"his":"her"%> reservati
 
 You see the concierge give Zasha a couple of room keys. <%=s.g?"He":"She"%> turns around, and places a friendly paw on your shoulder.
 
-"<%= s.snuggled_up ? "Juniper" : "Rabbit"%>, do you wish to sleep with me in my hotel room?"
+"<%= s.snuggled_up ? "Juniper" : "Rabbit"%>, do you wish to sleep with me tonight?"
 
 \> [[W-what?]]
 
