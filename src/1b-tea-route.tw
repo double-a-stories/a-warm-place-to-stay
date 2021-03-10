@@ -1,7 +1,7 @@
 <!-- Route 1b: Starts in "Follow Zasha to the room."-->
 
 
-:: Buy yourself some tea to warm up. {"position":"550,4275","sizing":"100,100"}
+:: Buy yourself some tea to warm up.
 <% s.got_tea = true; %>
 
 You ask your newfound roommate if <%=s.g?"he":"she"%> wants any tea or coffee.
@@ -17,7 +17,7 @@ Zasha opens the door for you.
 \> [[Enter the hotel room.|Enter the hotel room. (Tea Route)]]
 
 
-:: Enter the hotel room. (Tea Route) [checkpoint] {"position":"550,4425","sizing":"100,100"}
+:: Enter the hotel room. (Tea Route) [checkpoint]
 You walk inside after Zasha, taking a moment to hang up your jacket. Underneath is a simple gray undershirt which politely covers up your torso. Have we mentioned today, that you're not wearing pants?
 
 The hotel room is nothing to write home about. There's a microwave, telephone, bed, singular.
@@ -29,7 +29,7 @@ Zasha notices you looking at the bed, and seemingly reads your thoughts. "Hm, be
 \> [[Oh no, I insist.]]
 
 
-:: Oh no, I insist. {"position":"550,4550","sizing":"100,100"}
+:: Oh no, I insist.
 You tell Zasha <%=-s.g?"he":"she"%> has done more than enough. You'll nab a blanket or two and sleep on the floor.
 
 Zasha nods and gently sits down on the edge of the matress, which creaks as though it's barely supporting <%-s.g?"him":"her"%>. <%-s.g?"He":"She"%> pats the bedspread, offering for you sit next to <%=s.g?"him":"her"%>. You do so. <% if (s.snuggled_up) { %><%-s.g?"He":"She"%> opens <%=s.g?"his":"her"%> jacket, and you snuggle up inside.<% } %>
@@ -43,7 +43,7 @@ You sit <%- s.snuggled_up ? 'cozily' : 'awkwardly' %> beside Zasha for a little 
 </div>
 
 
-:: Do you want a sip? {"position":"550,4675","sizing":"100,100"}
+:: Do you want a sip?
 You offer a sip of your tea to Zasha. <%=s.g?"He":"She"%> hesitates at first, but eventually obliges, <%=s.g?"his":"her"%> massive claws very gently taking the cup from you, and having a little sip.
 
 "Mm," Zasha remarks, "Soothing."
@@ -70,7 +70,7 @@ Zasha places a claw on your belly as if <%=s.g?"paternally":"maternally"%> offer
 \> [[N-no... I-I've got it...]]
 
 
-:: N-no... I-I've got it... {"position":"550,4800","sizing":"100,100"}
+:: N-no... I-I've got it...
 <% s.previousCommand = "N-n..." %>
 You blush a deep red, but stammer to produce any words. Zasha removes <%=s.g?"his":"her"%> claw. "Zasha did not mean to make an inappropriate invasion of Juniper's personal space."
 

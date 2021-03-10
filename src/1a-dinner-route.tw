@@ -1,7 +1,7 @@
 <!-- Route 1a: Starts in "Follow Zasha to the room."-->
 
 
-:: Offer to buy a meal. {"position":"425,4275","sizing":"100,100"}
+:: Offer to buy a meal.
 <% s.got_dinner = true; %>
 
 <%
@@ -21,7 +21,7 @@ You take the container, and follow the enormous bear into Room 7. Zasha is unaba
 \> [[Enter the hotel room.|Enter the hotel room. (Dinner Route)]]
 
 
-:: Enter the hotel room. (Dinner Route) [checkpoint] {"position":"425,4425","sizing":"100,100"}
+:: Enter the hotel room. (Dinner Route) [checkpoint]
 <div.important>
 This route is unfinished! It's playable, but is still written as an outline and may be missing content.
 </div>

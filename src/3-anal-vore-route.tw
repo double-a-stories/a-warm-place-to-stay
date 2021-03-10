@@ -1,7 +1,7 @@
 <!-- Route 3: Starts in "Do you live around here?" -->
 
 
-:: Press for more information. [cold] {"position":"1050,2175","sizing":"100,100"}
+:: Press for more information. [cold]
 *CW: Anal Vore. Masturbation. Rimming.*
 
 You can clearly tell that Zasha is lying about <%=s.g?"his":"her"%> job. You tell <%=s.g?"him":"her"%> so outright. What does <%=s.g?"he":"she"%> *really* do for a living?
@@ -23,7 +23,7 @@ Zasha shifts uncomfortably. "Films of... er... sexual swallowing," <%=s.g?"he":"
 </div>
 
 
-:: Oh. Ooooooh. {"position":"1050,2300","sizing":"200,100"}
+:: Oh. Ooooooh.
 <%
 console.debug(`Set s.knows_zasha_does_vorno from ${s.knows_zasha_does_vorno} to true.`)
 s.knows_zasha_does_vorno = true; %>
@@ -41,7 +41,7 @@ You're ashamed to think that you've actually seen quite a lot of those films on 
 </div>
 
 
-:: S-so, you eat people for a living? [cold] {"position":"1150,2400","sizing":"100,100"}
+:: S-so, you eat people for a living? [cold]
 "Yes," Zasha says, struggling to make eye-contact, "but only with strict consent, of course!"
 
 A-and no digestion, right?
@@ -59,7 +59,7 @@ Your face flushes. *Usually*? <%=s.g?"He":"She"%>'s d-done it? This bear's belly
 </div>
 
 
-:: C-cool! A-anyways... [cold] {"position":"975,2525","sizing":"100,100"}
+:: C-cool! A-anyways... [cold]
 Now that you have this unpleasant knowledge haunting the back of your mind, you decide to do the normal thing, and change the subject as quickly as possible.
 
 S-some weather, huh?
@@ -71,7 +71,7 @@ You nod. You'd rather forget all about Zasha's innate capacity to swallow and wh
 <div->[[Arrive at the hotel.]]</div>
 
 
-:: ...Can you eat me? [cold] {"position":"1125,2525","sizing":"100,100"}
+:: ...Can you eat me? [cold]
 Your libido gets the better of you. You stammer out a request which feels extremely weird to say out loud. You ask the bear if <%=s.g?"he":"she"%> can eat you.
 
 Zasha seems taken aback. "This does not... scare you? Usually Zasha's partners, er, prey, are quite nervous."
@@ -87,7 +87,7 @@ Zasha smiles uneasily. "Yes, sometimes Zasha is involved in... *specialty* scene
 \> [[Anal? You can do that?]]
 
 
-:: Anal? You can do that? [cold] {"position":"1125,2650","sizing":"100,100"}
+:: Anal? You can do that? [cold]
 You're somewhat disbelieving of this. You knew some predators were capable of "anal vore", but you learned in Biology that it was a very rare skill.
 
 "Yes," Zasha replies, "Zasha is big bear, yes. <%=s.g?"He":"She"%> can consume prey through this hole. Can even squeeze through intestines and into stomach to be, er, regurgitated."
@@ -103,7 +103,7 @@ You listen intently, equal parts disgusted, terrified, and amazed.
 </div>
 
 
-:: Would you mind... um... showing me? [cold] {"position":"1125,2775","sizing":"100,100"}
+:: Would you mind... um... showing me? [cold]
 Zasha doesn't take <%=s.g?"his":"her"%> eyes off the road, but you can see a mischievous smirk growing on <%=s.g?"his":"her"%> face.
 
 "Yes," <%=s.g?"he":"she"%> replies "Zasha can do this. Wait until hotel, okay? We are almost there."
@@ -121,7 +121,7 @@ You're about to complain, when Zasha suddenly scoops you into <%=s.g?"his":"her"
 </div>
 
 
-:: Wh-what gives? {"position":"1125,2900","sizing":"100,100"}
+:: Wh-what gives?
 Zasha snuggles you close to <%=s.g?"his chest":"her bosom"%>, and smiles. "Rabbit is Zasha's toy now. Zasha does not like cold toy."
 
 You blush, but accept <%=s.g?"his":"her"%> affectionate teasing as <%=s.g?"he":"she"%> carries you into the building, setting you down in the lobby while <%s.g?"he":"she"%> talks to the concierge to get a room key. As a rabbit, you're somewhat used to people treating you like a child, but Zasha is treating you like *<%=s.g?"his":"her"%>* child, a child <%=s.g?"he":"she"%> intends to consume anally. Freud would have a field day with this.
@@ -137,7 +137,7 @@ From the front desk, the concierge winks at you and gives a thumbs up. You smile
 </div>
 
 
-:: Enter the hotel room. (Anal Vore Route) [checkpoint] {"position":"1125,3025","sizing":"200,100"}
+:: Enter the hotel room. (Anal Vore Route) [checkpoint]
 <div.important>
 This route is unfinished! It's playable, but is still written as an outline and may be missing content.
 </div>
@@ -170,7 +170,7 @@ onclick="story.state.safeWord = 'Idiosyncratic'; story.state.weirdSafeWord = tru
 </div>
 
 
-:: The safe word is... {"position":"1125,3150","sizing":"100,100"}
+:: The safe word is...
 <% s.safeWord = s.safeWord || "листва"; %>
 
 "<%-s.safeWord%><%-s.weirdSafeWord ? '?' : ',' %>" Zasha repeats, "<%-either("Okay", "Alright", "Yes")%>. Say this, and Zasha will stop what <%=s.g?"he":"she"%> is doing and help Rabbit out."
@@ -190,7 +190,7 @@ W-wow, you two are really doing this.
 </div>
 
 
-:: Lube up Zasha's hole. {"position":"1225,3275","sizing":"100,100"}
+:: Lube up Zasha's hole.
 You squirt a load of "Strawberry Lik-n-Stik Edible Lube" onto your cupped paw, and delicately smear it all over Zasha's asshole.
 
 "Rabbit will need to get it deeper..." <%=s.g?"he":"she"%> teases.
@@ -206,7 +206,7 @@ Zasha's furry tail is sticking straight up. <%=s.g?"He":"She"%> says, "Well rabb
 \> [[Press your face into <%=s.g?"his":"her"%> asshole.|Press your face into Zasha's asshole.]]
 
 
-:: Use your tongue. {"position":"1100,3275","sizing":"100,100"}
+:: Use your tongue.
 As you hold Zasha's cheeks apart and gaze into the hole betwixt, you can't help yourself. You lean in begin to swirl your tongue around <%=s.g?"his":"her"%> huge puckered asshole. <%=s.g?"He":"She"%> immediately responds with a moan, <%=s.g?"his cock twitching slightly between his legs.":"her asshole clenching and releasing."%>. "Rabbit could not help itself, yes? Mm, this is not bad..." You keep going for a little while, inhaling deep lungfuls of bear musk.
 
 Finally, Zasha says, "Rabbit *will* need to use more lube to get inside of Zasha."
@@ -214,7 +214,7 @@ Finally, Zasha says, "Rabbit *will* need to use more lube to get inside of Zasha
 \> [[Lube up <%=s.g?"his":"her"%> hole.|Lube up Zasha's hole.]]
 
 
-:: Press your face into Zasha's asshole. [vore] {"position":"1125,3450","sizing":"100,100"}
+:: Press your face into Zasha's asshole. [vore]
 <% s.safeWord = s.safeWord || "листва"; %>
 
 You shlorp your nose into Zasha's thick ass. It's dripping with sweat as you fold your ears behind your head, and press forward.. The sensation of forcing your face into that tight ring, and having it stretch to accept you, is utterly surreal.
@@ -276,7 +276,7 @@ Satisfied with the orgasm, the two of you fall asleep.
 </div>
 
 
-:: Ending: Morning after {"position":"1125,3600","sizing":"100,100"}
+:: Ending: Morning after
 You wake up in the morning, being squeezed out of the bear's asshole, and into a bathtub. Yuck.
 
 You gratefully return to your car, unable to look Zasha in the eye after spending multiple hours in <%=s.g?"his":"her"%> large intestine. <%=s.g?"He":"She"%> seems a little bashful about almost killing you, but the two of you are on good terms. Zasha tows your car to a repair shop, and waves you off. As <%=s.g?"he":"she"%> leaves, <%=s.g?"he":"she"%> writes down an email address, and winks, asking if you want to do it again some time. A shiver goes down your spine.

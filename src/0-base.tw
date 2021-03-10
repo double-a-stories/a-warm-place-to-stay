@@ -25,7 +25,7 @@
 A Warm Place to Stay
 
 
-:: Title Screen [start] {"position":"500,100","sizing":"100,100"}
+:: Title Screen [start]
 <div.logo>
 <h1 class="logotitle">A Warm&nbsp;Place to&nbsp;Stay</h1>
 <p.logosubtitle>Polar Bear Vore Adventure by Double-A</p>
@@ -94,7 +94,7 @@ Vore. Furries. Unfinished content.
 <% } %>
 
 
-:: Keyboard controls {"position":"700,100","sizing":"100,100"}
+:: Keyboard controls
 This game can be played with either mouse or keyboard controls.
 
 #### Basic Navigation
@@ -114,7 +114,7 @@ This game can be played with either mouse or keyboard controls.
 \> <a0 onclick="bunny.undo()">Go back.</a>
 
 
-:: Warp zone {"position":"1100,100","sizing":"100,100"}
+:: Warp zone
 You've entered a time warp!
 
 This is a list of every passage, in the order they were added to the game.
@@ -201,7 +201,7 @@ To the right are passage tags, metadata which I use for things like checkpoints 
 </style>
 
 
-:: Header [header] {"position":"200,100","sizing":"100,100"}
+:: Header [header]
 <% if (storyFlags.get().showDebug) { %>
 <div class="debug-menu">
 <style>
@@ -282,7 +282,7 @@ To the right are passage tags, metadata which I use for things like checkpoints 
 </style>
 
 
-:: Adventure Log {"position":"900,100","sizing":"100,100"}
+:: Adventure Log
 A list of all the passages the user has seen, in the order they were discovered.
 
 This code might be useful for some kind of sidebar?
