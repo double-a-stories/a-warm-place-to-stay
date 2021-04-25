@@ -1,6 +1,16 @@
 # A Warm Place to Stay
 
-A furry vore adventure, written in Twee 3.
+This is a text-based interactive story written in [Twee 3](https://github.com/iftechfoundation/twine-specs/blob/master/twee-3-specification.md). It contains content which **may be unsuitable for all except a unique adult audience**, including references to scat, sex, and death. Reader discretion is strongly advised.
+
+## Play
+
+Latest stable build: https://double-a-stories.github.io/life-of-the-party/
+
+## License
+
+The source code underlying this project, including passage styling and Javascript, is licensed under the [MIT-0 license](/LICENSE-CODE). You may use any or all of of this code for any purpose **without attribution**.
+
+All prose and image content of this story is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). You are free to share and adapt this content in any medium or format **with attribution** for **non-commercial purposes** under **the same license**.
 
 ## Building from source
 
@@ -16,8 +26,7 @@ A furry vore adventure, written in Twee 3.
 1. To build:
 
     ```sh
-    $ tweego ./src/ -o A_Warm_Place_to_Stay.html
-    # generates at output.html
+    $ tweego ./src/ -o Life_of_the_Party.html
     # -w (Watch for changes)
     # -s [passage name] (Specify start passage)
     # -f [formatid] (Specify a different format)
