@@ -136,4 +136,4 @@ You yell out, trying to wake Zasha up, but your voice is muffled by the bear's c
 
 \> [[Epilogue.|Ending: Digestion regret]]
 
-\> <a0 onclick="bunny.restart()">Restart.</a>
+\> <a0 onclick="setup.restart()">Restart.</a>

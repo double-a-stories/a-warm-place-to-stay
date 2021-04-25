@@ -1,0 +1,20 @@
+:: Help [no_checkpoint]
+
+\> <a0 onclick="setup.undo();">Go back</a>
+
+### Keyboard controls
+
+* `S (J)` - *Select next link.*
+* `W (K)` - *Select previous link.*
+* `E (Space)` - *Use selected link.*
+* `A (H)` - *Undo last command.*
+* `D (L) ` - *Redo last command.*
+
+
+### Play offline
+
+Click below to download a local copy of this game. You're free to distribute and modify it under the terms of the CC BY-NC-SA 4.0 license.
+
+\> <a href="" download="<%- story.name %> <%- story.version %>.html">Download</a>
+
+<%= story.render("Credits passage") %>

@@ -283,4 +283,4 @@ You gratefully return to your car, unable to look Zasha in the eye after spendin
 
 ### The end.
 
-\> <a0 onclick="bunny.restart()">Restart.</a>
+\> <a0 onclick="setup.restart()">Restart.</a>

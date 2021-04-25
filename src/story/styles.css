@@ -1,0 +1,38 @@
+/* Story Styles (using passage tags) */
+body[data-tags~="vore"] {
+  --background: #fcc;
+}
+
+body[data-tags~="cold"] {
+  --background: #eef;
+}
+
+body[data-tags~="warm"] {
+  --background: #fee;
+}
+
+body[data-tags~="dark"] {
+  --background: #020202;
+  --light: rgba(255, 255, 255, 50%);
+  --color: #ccc;
+}
+
+/* Card style */
+
+.important {
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.01);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.important>* {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+#recent-command {
+  text-align: center;
+  font-family: "Georgia", serif;
+}

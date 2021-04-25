@@ -217,7 +217,7 @@ You resign to your fate of being accidentally digested, and slowly dissolve in Z
 
 \> [[The next day...|Ending: Digestion regret]] *(Post-vore scat)*
 
-\> <a0 onclick="bunny.restart()">Restart.</a>
+\> <a0 onclick="setup.restart()">Restart.</a>
 
 
 :: Ending: Digestion regret
@@ -229,7 +229,7 @@ You and your belongings are discretely flushed in the hotel toilet as a slurry o
 
 ### The End.
 
-\> <a0 onclick="bunny.restart()">Restart.</a>
+\> <a0 onclick="setup.restart()">Restart.</a>
 
 
 :: Thrash and struggle for your life!
@@ -265,8 +265,8 @@ The next day, Zasha wordlessly drives you back to your car.
 Your cell is working again, and the snow is gone.
 You try to talk, but can't think of anything to say. You call a towing company, and get your car fixed. By the end of the day, you're moving on.
 
-\> <a0 onclick="bunny.restart()">Restart.</a>
+\> <a0 onclick="setup.restart()">Restart.</a>
 
 
 :: Ending: Somewhat awkward
-\> <a0 onclick="bunny.restart()">Restart.</a>
+\> <a0 onclick="setup.restart()">Restart.</a>

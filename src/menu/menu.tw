@@ -1,0 +1,20 @@
+:: Start [no_heading start]
+
+<%= story.render("Logo") || "" %>
+
+<div>
+
+\> [[A Warm Place to Stay.]]
+
+</div>
+
+<div.important><%= story.render("Checkpoints") %></div>
+
+<%= story.render("Local play message") %>
+
+:: Local play message
+<% if (location.protocol == "file:") { %>
+
+This is an <strong>offline version</strong> of <i><%- story.name %></i>, which might not be the latest. You can check for the latest revision <a href="<%-story.mainURL %>>" target="_blank">here</a>.
+
+<% } %>
