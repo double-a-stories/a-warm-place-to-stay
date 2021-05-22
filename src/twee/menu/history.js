@@ -1,3 +1,5 @@
+// LICENSE: MIT-0
+
 /* History Commands */
 
 window.setup = window.setup || {};
@@ -23,3 +25,16 @@ $(window).on('sm.passage.shown', (e, {passage}) => {
   if (!passage.tags.includes("no_checkpoint"))
   story.checkpoint(); // required for "undo" to restore previous state
 })
+
+setup.rewind = () => {
+  if (story.history.length >= 1) {
+    let idx = _.findLastIndex(story.history.slice(0, -1),
+    id => story.passage(id).tags.includes("checkpoint"));
+    if (idx != -1) {
+      story.show(story.history[idx]);
+      story.history = story.history.slice(0, idx + 1);
+    } else {
+      setup.restart();
+    }
+  }
+}

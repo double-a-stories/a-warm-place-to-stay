@@ -24,29 +24,6 @@
 :: StoryTitle
 A Warm Place to Stay
 
-:: Logo
-
-<h1 class="logotitle">A Warm&nbsp;Place to&nbsp;Stay</h1>
-<p.logosubtitle>Polar Bear Vore Adventure by Double-A</p>
-
-:: Logo styles [stylesheet]
-.logotitle {
-  margin-top: 5rem;
-  text-align: center;
-  font-family: 'Georgia', serif;
-  font-variant: small-caps;
-  font-weight: bold;
-  font-size: 3.5rem;
-  line-height: 1;
-}
-.logosubtitle {
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-weight: lighter;
-  text-align: center;
-  margin-bottom: 5rem;
-}
-
 :: Checkpoints
 
 <% let seen = storyFlags.get().seenPassages;
@@ -77,30 +54,12 @@ let unseenCount = checkpoints.filter(p => !seen.includes(p.id)).length;
 
 :: Content warning
 
-#### ⚠️ CONTENT WARNING ⚠️
+### ⚠️ CONTENT WARNING ⚠️
 
 Vore. Furries. Unfinished content.
 
+*CW: This story focuses heavily on oral vore, fatal vore, and unwilling digestion. It also contains scenes containing masturbation, either by the player or their predator. If you find such material objectionable, please read at your own discretion.*
 
-
-:: Keyboard controls
-This game can be played with either mouse or keyboard controls.
-
-#### Basic Navigation
-
-`W (↑) ` *Select previous link.*
-
-`S (↓)` *Select next link.*
-
-`E (⏎)` *Use selected link.*
-
-#### Time Travel
-
-`A (←)` *Undo last command.*
-
-`D (→)` *Redo last command.*
-
-\> <a0 onclick="setup.undo()">Go back.</a>
 
 
 :: Adventure Log
@@ -124,10 +83,29 @@ let checkpoints = story.passages
 
 <% } %>
 
-:: Credits passage
+:: Misc story variables [script]
 
-### Credits
+story.semanticVersion = [0, 4, 0];
+story.version = `v${story.semanticVersion.slice(0, 3).join(".")}${story.semanticVersion[3] || ""}`;
+story.sourceURL = "https://github.com/double-a-stories/a-warm-place-to-stay";
 
-This story was written and developed by <a href="https://aryion.com/g4/user/DoubleA" target="_blank">Double-A</a>.
+:: Credits [dark]
 
-This story uses <a href="https://github.com/twitter/twemoji" target="_blank">Twemoji</a> by Twitter Inc.
+*Life of the Party* was written and developed by me, [▽ Double-A ▽](https://aryion.com/g4/user/DoubleA). If you liked it, leave me feedback at [Eka's Portal](https://aryion.com/forum/viewtopic.php?f=79&t=59177) or [textadventures.co.uk](http://textadventures.co.uk/games/view/fcvdqsoz7u2edrju9wb6ba/life-of-the-party-a-furry-vore-adventure-18)!
+
+If you really enjoyed this, and want me to spend more time making things like it, consider supporting me at [☕ Ko-fi](https://ko-fi.com/doublea).
+
+* 📖 [Twine and Twee](https://github.com/tweecode)
+* 😃 [twitter/twemoji](https://github.com/twitter/twemoji) – Open source Emoji set and CDN.
+* 🏍️ [tmedwards/tweego](https://github.com/tmedwards/tweego) – Compiler for Twee 3
+* ⛄️ [videlais/snowman](https://github.com/videlais/snowman) – Story format
+
+Special thanks to [Chris Klimas](https://github.com/klembot) and all contributors to the
+
+### License
+
+<%= story.render("License") %>
+
+:: License
+
+Copyright © 2021 Double-A. The [text of this story](https://github.com/double-a-stories/a-warm-place-to-stay) is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). You are free to share and adapt this text in any medium **with attribution** for **non-commercial purposes** under **the same license**.

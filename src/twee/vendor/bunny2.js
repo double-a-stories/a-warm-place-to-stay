@@ -1,6 +1,3 @@
-/** Story Constants */
-story.version = "v0.3.2";
-
 window.setup = window.setup || {};
 
 // Warm Place to Stay Message
