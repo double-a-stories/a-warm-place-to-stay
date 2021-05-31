@@ -1,6 +1,0 @@
-:: Logo [hide]
-<!-- The logo text is drawn using fake small caps. Creating them with inline span elements, rather than the font-variant-caps property makes them render consistently across Firefox and Chrome. -->
-<div class="logo">
-<h1 class="logo__title">A Warm Place to Stay</h1>
-<p class="logo__subtitle">Polar Bear Vore Adventure by Double-A</p>
-</div>
