@@ -3,24 +3,7 @@
 $(window).on('sm.story.started', function (event, {
   story
 }) {
-console.log(`${story.name} ${story.version}
-============================================================
-
-Hello, I'm Double-A. Thanks for playing my game!. If you're
-here, you're probably looking for juicy cheat codes, or
-you're stuck finding the more obscure achievements.
-
-To get the hidden zen ending, go outside and sit by yourself.
-
-To get the hidden broom closet ending, go to the broom
-closet.
-
-For the remaining endings, you'll just have to look around.
-
--AA
-
-=========================================================
-`);
+// insert console.log here
 });
 
 :: Warp zone
