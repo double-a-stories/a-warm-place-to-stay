@@ -3,7 +3,7 @@
     "ifid": "CFB4E6AB-1631-4384-B7DD-D3868FB9835A",
     "format": "Snowman",
     "format-version": "2.0.2",
-    "start": "Start",
+    "start": "Title Screen",
     "tag-colors": {
         "check": "orange",
         "checkpoint": "yellow",
@@ -22,7 +22,7 @@
 :: StoryTitle
 A Warm Place to Stay
 
-:: Start [no_heading start]
+:: Title Screen [no_heading start]
 <style>
 tw-passage > * {
   margin-bottom: 2rem;
