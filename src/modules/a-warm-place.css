@@ -1,3 +1,10 @@
+/* LICENSE: MIT-0 */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Georgia", serif;
+  text-align: center;
+}
+
 /* Story Styles (using passage tags) */
 body[data-tags~="vore"] {
   --background: #fcc;
