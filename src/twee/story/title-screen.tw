@@ -1,0 +1,90 @@
+:: StoryData
+{
+    "ifid": "CFB4E6AB-1631-4384-B7DD-D3868FB9835A",
+    "format": "Snowman",
+    "format-version": "2.0.2",
+    "start": "Start",
+    "tag-colors": {
+        "check": "orange",
+        "checkpoint": "yellow",
+        "cold": "blue",
+        "flush": "red",
+        "header": "green",
+        "sidebar": "green",
+        "start": "green",
+        "todo": "orange",
+        "vore": "red",
+        "warm": "red"
+    }
+}
+
+
+:: StoryTitle
+A Warm Place to Stay
+
+:: Start [no_heading start]
+<style>
+tw-passage > * {
+  margin-bottom: 2rem;
+}
+</style>
+
+<div class="title-art">
+<canvas id="sky" style="display: block; background: black;"></canvas>
+<img src="<%= story.render("warm-place-art") %>">
+</div>
+
+<div class="logo">
+<h1 class="logo__title">A Warm Place to&nbsp;Stay</h1>
+<p class="logo__subtitle">Polar Bear Vore Adventure by Double-A</p>
+</div>
+
+<div style="text-align: center">
+
+\> [[A Warm Place to Stay.]]
+
+</div>
+
+<div>
+<%= story.render("Checkpoints") %>
+</div>
+
+:: Checkpoints
+
+<% let seen = storyFlags.get().seenPassages;
+let checkpoints = story.passages
+    .filter(p => p && p.tags.includes("checkpoint"))
+	<!-- .sort((p1, p2) => seen.indexOf(p1.id) -  seen.indexOf(p2.id)); -->
+let seenCount = checkpoints.filter(p => seen.includes(p.id)).length;
+let unseenCount = checkpoints.filter(p => !seen.includes(p.id)).length;
+	%>
+
+<% if (seenCount > 0) { %>
+<h3>Checkpoints</h3>
+<ul style="list-style-type: '> ';">
+<% checkpoints.filter(p => seen.includes(p.id))
+	.forEach(({ name, id }) => { %>
+<li><a0 data-passage="<%=name%>"><%= name %></a></li>
+<% }); %>
+<% for (let i = unseenCount; i > 0; i--) { %>
+<li>?????</li>
+<% } %>
+</ul>
+
+\> <a0 onclick="window.confirm('This will permanently reset checkpoints. Are you sure?') && storyFlags.assign({seenPassages: []}); setup.rerender()">Reset checkpoints.</a>
+
+<% } else { %>
+<%= story.render("Content warning") %></div>
+<% } %>
+
+:: Content warning
+
+### ⚠️ CONTENT WARNING ⚠️
+
+Vore. Furries. Unfinished content.
+
+This story is for **adults only**. It contains **niche fetish content**, including but not limited to **soft vore, sadism, digestion, and death**. Proceed at your own discretion.
+
+:: Misc story variables [script]
+
+story.version = `v0.4.0`;

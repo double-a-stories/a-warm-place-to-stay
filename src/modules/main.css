@@ -1,0 +1,78 @@
+/* LICENSE: MIT-0 */
+
+/* Style variables */
+
+:root {
+  --color: #111;
+  --background: #eee;
+  /* Semi-transparent decoration color */
+  --light: rgba(0, 0, 0, 20%);
+  /* Link hover color */
+  --accent: #d93;
+  /* Default body font */
+  --font-stack: -apple-system, BlinkMacSystemFont, Avenir Next, Avenir, Segoe UI, Helvetica Neue, Helvetica, Ubuntu, Roboto, Noto, Arial, sans-serif;
+}
+
+body {
+  font: 1.2rem/1.6 var(--font-stack);
+  color: var(--color);
+  background: var(--background);
+  transition: opacity 1s, background 2s;
+}
+
+/* Override default Twee styles */
+
+tw-story {
+  line-height: inherit;
+  position: unset !important;
+  margin: 1rem auto;
+  padding-bottom: 4rem;
+  max-width: 35em;
+}
+
+/* Typography and spacing */
+
+h1, h2, h3, h4, h5, h6, p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.15;
+}
+
+/* Links */
+
+a {
+  color: var(--color, #111);
+  text-decoration-color: var(--light, rgba(0, 0, 0, 20%));
+}
+
+a:hover,
+a:focus,
+a:active {
+  color: var(--accent, #d93);
+  text-decoration-color: var(--accent, #d93);
+}
+
+.list-unstyled {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+}
+
+/* Tag: no_heading: hides the passage name */
+[data-tags~="no_heading"] #recent-command {
+  display: none;
+}
+
+/* Mobile mode */
+@media screen and (max-width:500px) {
+  .passage {
+    font-size: 80%;
+  }
+  a {
+    line-height: 2;
+    padding: 1rem 0;
+  }
+}
