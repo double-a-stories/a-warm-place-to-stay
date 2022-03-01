@@ -55,6 +55,363 @@ body[data-tags~="dark"] {
   text-align: center;
   font-family: "Georgia", serif;
 }</style>
+<style id="style-module-backgrounds" type="text/css">/* Story Styles (using passage tags) */
+
+body[data-tags~="vore"] {
+  --background: #400;
+  --light: #fff4;
+  --color: #fdd;
+}
+
+
+body[data-tags~="morning"] {
+  --background: #ffe;
+  --color: #320;
+}
+
+body[data-tags~="gore"] {
+  --background: #B00;
+  --color: #FFF;
+  --light: #fff4;
+}
+
+/* Drunk effect (for Nikki/Nox route) */
+
+[data-tags~="drunk"] tw-story {
+  animation: rock 5s ease-in-out infinite, blur 3s ease-in-out infinite;
+}
+
+@keyframes rock {
+  0% { transform: rotateY(-1deg);}
+  50% { transform: rotateZ(1deg);}
+  100% { transform: rotateY(-1deg); }
+}
+
+@keyframes blur {
+  0% { filter: blur(0); }
+  50% { filter: blur (40px); }
+  100% { filter: blur(0); }
+}</style>
+<style id="style-module-commands" type="text/css">/* Commands */
+
+.commands-list {
+    list-style-type: disclosure-closed;
+    list-style-position: inside;
+    padding-inline-start: 0;
+}
+
+.commands-list li {
+  margin-bottom: 1rem;
+}
+
+.commands-list ::marker {
+  color: var(--light);
+}
+.commands-list li:focus-within::marker {
+  color: var(--color);
+}
+
+.commands-list :any-link {
+  color: var(--color);
+  background: var(--background);
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  text-decoration-line: none;
+  border: 1px solid var(--light);
+  border-radius: 0.5rem;
+}
+
+.commands-list :any-link:hover {
+  color: var(--color);
+  border-color: var(--color);
+  text-decoration-color: var(--light);
+  text-decoration-line: underline;
+}
+
+.commands-list :any-link:focus {
+  color: var(--background);
+  background: var(--color);
+  border-color: transparent;
+  outline: none;
+}</style>
+<style id="style-module-devmode" type="text/css">.dev-info {
+    background-color: white;
+    bottom: 0;
+    color: #333;
+    font-family: monospace;
+    font-size: 60%;
+    padding: 1rem;
+    position: fixed;
+    right: 0;
+    width: 40em;
+}
+
+.dev-info dt {
+    display: inline;
+    font-weight: bold;
+}
+.dev-info dt::after {
+    content: ":";
+    margin-right: 0.5rem;
+}
+.dev-info dd {
+    display:  inline;
+    margin: 0;
+}
+
+.dev-info dd::after {
+    content: '';
+    display: block;
+}</style>
+<script id="script-module-lockr" type="text/javascript">(function(root, factory) {
+
+  if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports) {
+      exports = module.exports = factory(root, exports);
+    }
+  } else if (typeof define === 'function' && define.amd) {
+    define(['exports'], function(exports) {
+      root.Lockr = factory(root, exports);
+    });
+  } else {
+    root.Lockr = factory(root, {});
+  }
+
+}(this, function(root, Lockr) {
+  'use strict';
+
+  if (!Array.prototype.indexOf) {
+    Array.prototype.indexOf = function(elt /*, from*/)
+    {
+      var len = this.length >>> 0;
+
+      var from = Number(arguments[1]) || 0;
+      from = (from < 0)
+      ? Math.ceil(from)
+      : Math.floor(from);
+      if (from < 0)
+        from += len;
+
+      for (; from < len; from++)
+      {
+        if (from in this &&
+            this[from] === elt)
+          return from;
+      }
+      return -1;
+    };
+  }
+
+  Lockr.prefix = "";
+
+  Lockr._getPrefixedKey = function(key, options) {
+    options = options || {};
+
+    if (options.noPrefix) {
+      return key;
+    } else {
+      return this.prefix + key;
+    }
+
+  };
+
+  Lockr.set = function (key, value, options) {
+    var query_key = this._getPrefixedKey(key, options);
+
+    try {
+      localStorage.setItem(query_key, JSON.stringify({"data": value}));
+    } catch (e) {
+      if (console) console.warn("Lockr didn't successfully save the '{"+ key +": "+ value +"}' pair, because the localStorage is full.");
+    }
+  };
+
+  Lockr.get = function (key, missing, options) {
+    var query_key = this._getPrefixedKey(key, options),
+        value;
+
+    try {
+      value = JSON.parse(localStorage.getItem(query_key));
+    } catch (e) {
+            if(localStorage[query_key]) {
+              value = {data: localStorage.getItem(query_key)};
+            } else{
+                value = null;
+            }
+    }
+    
+    if(!value) {
+      return missing;
+    }
+    else if (typeof value === 'object' && typeof value.data !== 'undefined') {
+      return value.data;
+    }
+  };
+
+  Lockr.sadd = function(key, value, options) {
+    var query_key = this._getPrefixedKey(key, options),
+        json;
+
+    var values = Lockr.smembers(key);
+
+    if (values.indexOf(value) > -1) {
+      return null;
+    }
+
+    try {
+      values.push(value);
+      json = JSON.stringify({"data": values});
+      localStorage.setItem(query_key, json);
+    } catch (e) {
+      console.log(e);
+      if (console) console.warn("Lockr didn't successfully add the "+ value +" to "+ key +" set, because the localStorage is full.");
+    }
+  };
+
+  Lockr.smembers = function(key, options) {
+    var query_key = this._getPrefixedKey(key, options),
+        value;
+
+    try {
+      value = JSON.parse(localStorage.getItem(query_key));
+    } catch (e) {
+      value = null;
+    }
+    
+    return (value && value.data) ? value.data : [];
+  };
+
+  Lockr.sismember = function(key, value, options) {
+    return Lockr.smembers(key).indexOf(value) > -1;
+  };
+
+  Lockr.keys = function() {
+    var keys = [];
+    var allKeys = Object.keys(localStorage);
+
+    if (Lockr.prefix.length === 0) {
+      return allKeys;
+    }
+
+    allKeys.forEach(function (key) {
+      if (key.indexOf(Lockr.prefix) !== -1) {
+        keys.push(key.replace(Lockr.prefix, ''));
+      }
+    });
+
+    return keys;
+  };
+
+  Lockr.getAll = function (includeKeys) {
+    var keys = Lockr.keys();
+
+    if (includeKeys) {
+      return keys.reduce(function (accum, key) {
+        var tempObj = {};
+        tempObj[key] = Lockr.get(key);
+        accum.push(tempObj);
+        return accum;
+      }, []);
+    }
+
+    return keys.map(function (key) {
+      return Lockr.get(key);
+    });
+  };
+
+  Lockr.srem = function(key, value, options) {
+    var query_key = this._getPrefixedKey(key, options),
+        json,
+        index;
+
+    var values = Lockr.smembers(key, value);
+
+    index = values.indexOf(value);
+
+    if (index > -1)
+      values.splice(index, 1);
+
+    json = JSON.stringify({"data": values});
+
+    try {
+      localStorage.setItem(query_key, json);
+    } catch (e) {
+      if (console) console.warn("Lockr couldn't remove the "+ value +" from the set "+ key);
+    }
+  };
+
+  Lockr.rm =  function (key) {
+    var queryKey = this._getPrefixedKey(key);
+    
+    localStorage.removeItem(queryKey);
+  };
+
+  Lockr.flush = function () {
+    if (Lockr.prefix.length) {
+      Lockr.keys().forEach(function(key) {
+        localStorage.removeItem(Lockr._getPrefixedKey(key));
+      });
+    } else {
+      localStorage.clear();
+    }
+  };
+  return Lockr;
+
+}));</script>
+<style id="style-module-logo_awapts" type="text/css">/* LICENSE: MIT-0 */
+
+.logo {
+  line-height: 1.3;
+  text-align: center;
+  margin: 3rem 0;
+}
+.logo__title {
+  font-family: Georgia;
+  font-weight: bold;
+      font-size: 3.5rem;
+  line-height: 0.8;
+  text-align: center;
+}
+
+.logo__subtitle {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: lighter;
+}
+.logo__horse {
+  display: inline-block;
+  height: 0.8em;
+}
+
+.logo__title > span {
+  padding-inline: 0.5ch;
+}
+
+@media screen and (max-width:700px) {
+  .logo__title {
+    font-size: 1.9em;
+  }
+}
+
+.title-art {
+  width: 100%;
+  height: 300px;
+  position: relative;
+  overflow: hidden;
+  margin-inline: auto;
+}
+.title-art canvas {
+  object-fit: cover;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+.title-art img {
+  position: absolute;
+  width: 100%;
+  max-height: 100%;
+  bottom: 0;
+  object-fit: contain;
+}</style>
 <style id="style-module-logo" type="text/css">/* LICENSE: MIT-0 */
 
 .logo {
@@ -220,7 +577,20 @@ a:active {
 </head>
 	<body>
 		<tw-story tags></tw-story>
-		<!-- UUID://CFB4E6AB-1631-4384-B7DD-D3868FB9835A// --><tw-storydata name="A Warm Place to Stay" startnode="92" creator="Tweego" creator-version="2.1.1" ifid="CFB4E6AB-1631-4384-B7DD-D3868FB9835A" zoom="1" format="Snowman" format-version="2.0.2" options="" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">/* twine-user-stylesheet #1: "Twemoji style" */
+		<!-- UUID://CFB4E6AB-1631-4384-B7DD-D3868FB9835A// --><tw-storydata name="A Warm Place to Stay" startnode="93" creator="Tweego" creator-version="2.1.1+81d1d71" ifid="CFB4E6AB-1631-4384-B7DD-D3868FB9835A" zoom="1" format="Snowman" format-version="2.0.2" options="" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">/* twine-user-stylesheet #1: "fade.css" */
+.fadein {
+    animation: 1s ease fadeIn;
+}
+
+@keyframes fadeIn {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+ } 
+/* twine-user-stylesheet #2: "Cheevos style" */
+.locked-achievement {
+  filter: grayscale(1);
+}
+/* twine-user-stylesheet #3: "Twemoji style" */
 .emoji {
   object-fit: contain;
   width: 1.2em;
@@ -228,7 +598,7 @@ a:active {
   vertical-align: -0.1em;
   text-shadow: black 1px 1px;
 }
-/* twine-user-stylesheet #2: "header.css" */
+/* twine-user-stylesheet #4: "header.css" */
 .topbar {
   font-size: 0.75em;
   border-bottom: 1px solid var(--light);
@@ -253,7 +623,47 @@ justify-content: space-between;
   content: "|";
   margin-right: 0.5rem;
 }
-/* twine-user-stylesheet #3: "Warp zone stylesheet" */
+/* twine-user-stylesheet #5: "kbd.css" */
+/**
+ * Draws <kbd> elements as actual keyboard keys
+ * Based on <https://shhdharmen.github.io/keyboard-css/>
+ * These styles are (c) 2020 Dharmen Shah (MIT license)
+ */
+kbd {
+    background-color: #fff;
+    border-radius: 0.25rem;
+    border: 1px solid #e6e6e6;
+    box-shadow: 0 0 #d9d9d9, 0 0px #d9d9d9, 0 1px #d9d9d9, 0 2px #d9d9d9, 0 3px #d9d9d9, 0 4px #d9d9d9, 0 5px #d9d9d9, 0 6px #d9d9d9, 0 7px #d9d9d9, 0 8px #d9d9d9, 2px 4px 4px #adb5bd, 0 -1px 4px #adb5bd;
+    color: #343a40;
+    display: inline-block;
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 1.5;
+    margin: 0.2em;
+    margin-bottom: 0.8rem;
+    padding: 0.2rem 0.6rem;
+    transform-style: preserve-3d;
+    transform: translate3d(0, 0, 5px);
+  }
+  kbd:after {
+    border-radius: 0.5rem;
+    border-width: 0.125rem;
+    bottom: -10px;
+    left: -0.3125rem;
+    right: -0.3125rem;
+    top: 0px;
+    transform: translate3d(0, 0, -5px);
+    border-style: solid;
+    box-sizing: content-box;
+    content: '';
+    display: block;
+    position: absolute;
+    transform-style: preserve-3d;
+    transition: all 0.25s cubic-bezier(0.2, 1, 0.2, 1);
+    border-color: #cccccc;
+  }
+/* twine-user-stylesheet #6: "Warp zone stylesheet" */
 .tag-badge {
   display: inline-block;
   background-color: #555;
@@ -297,357 +707,184 @@ justify-content: space-between;
   vertical-align: bottom;
   border-bottom: 2px solid #dee2e6;
   text-align: inherit;
-}</style><script role="script" id="twine-user-script" type="text/twine-javascript">/* twine-user-script #1: "Tweeomoji" */
-// Load Twemoji script
-
-const TWEMOJI_OPTIONS = {
-  folder: 'svg',
-  ext: '.svg'
-};
-
-const handleTwemoji = () => {
-  if (!window.twemoji) {
-    console.error("Twemoji script not loaded! Emoji will fallback to system font.");
-    return;
-  }
-  twemoji.parse(story.$passageEl[0], TWEMOJI_OPTIONS);
-}
-
-$(window).on('sm.passage.hidden sm.passage.shown', handleTwemoji);
-/* twine-user-script #2: "fade.js" */
-// LICENSE: MIT-0
-// Fadein effect when showing passages
-// Passages can disable this by adding the tag "no_fade"
-
-$(window).on('sm.passage.hidden', () => {
-  story.$passageEl.css({ opacity: 0 });
-})
-
-$(window).on('sm.passage.shown', (ev, { passage }) => {
-  const noFade = passage.tags.some(tag => tag === "no_fade");
-  story.$passageEl.animate({ opacity: 1 }, { duration: noFade ? 0 : "slow", queue: false });
-})
-/* twine-user-script #3: "header.js" */
-// LICENSE: MIT-0
-
-/* Page Header */
-/* use the tag `header` on a passage to render it before the passage */
-
-$(window).on('sm.story.started', function (event, {
-  story
-}) {
-  const passages = story.passages.filter(p => p);
-  const $headerEl = $("<header></header>").attr("id", "header");
-  passages.filter(p => p.tags.includes("header")).forEach(p => {
-    const html = $.parseHTML(story.render(p.id));
-    $(html).appendTo($headerEl);
-  })
-  $headerEl.insertBefore(story.$passageEl);
-});
-
-// Make a passage loading work like page loading
-$(window).on('sm.passage.hidden', function (event, {
-  story
-}) {
-  window.scrollTo(0, 0); // scroll to top
-  $(":focus").blur(); // unselect selected item
-});
-
-/* Previous Command API */
-// Show the text of the clicked link as the title of the next passage
-// e.g. the link [[Foo|Bar]] goes to the passage Bar, but shows Foo.
-$(window).on('sm.passage.shown', (e, {
-  passage
-}) => {
-  $("a").on("click", ({
-    currentTarget
-  }) => {
-    const $this = $(currentTarget);
-    // Data attributes:
-    // Add data-nocommand to use the linked passage's title
-    // Use data-command="..." to set custom titles
-    const data = $this.data();
-    if (data["command"] !== "" && data["nocommand"] !== "") {
-      story.state.previousCommand = data["command"] || $this.html();
-    }
-  })
-  const passageTitle = story.state.previousCommand || passage.name
-  $("#recent-command").html(passageTitle)
-  story.state.previousCommand = "";
-})
-/* twine-user-script #4: "history.js" */
-// LICENSE: MIT-0
-
-/* History Commands */
-
-window.setup = window.setup || {};
-
-// Undo Command
-setup.undo = () => {
-  window.history.back(); // load last checkpoint
-  $("#back-button:focus").blur(); // unfocus the back button
-}
-// Restart
-setup.restart = () => {
-  story.history = []; // erase history (resets page visit counts)
-  story.state = {}; // reset state
-
-  // reset the startPassage variable to a passage with the tag 'start'
-  const passages = story.passages.filter(p => p);
-  const start = passages.find(p => p.tags.includes("start"));
-  story.startPassage = start ? start.id : story.startPassage;
-  story.show(story.startPassage); // load startPassage
-}
-// save a Snowman checkpoint on every passage.
-$(window).on('sm.passage.shown', (e, {passage}) => {
-  if (!passage.tags.includes("no_checkpoint"))
-  story.checkpoint(); // required for "undo" to restore previous state
-})
-
-setup.rewind = () => {
-  if (story.history.length >= 1) {
-    let idx = _.findLastIndex(story.history.slice(0, -1),
-    id => story.passage(id).tags.includes("checkpoint"));
-    if (idx != -1) {
-      story.show(story.history[idx]);
-      story.history = story.history.slice(0, idx + 1);
-    } else {
-      setup.restart();
-    }
-  }
-}
-/* twine-user-script #5: "keybinds.js" */
-/*
- * Keyboard Controls
+}</style><script role="script" id="twine-user-script" type="text/twine-javascript">/* twine-user-script #1: "achievements.js" */
+/**
+ * achievements.js
+ *
+ * A plugin for "Life of the Party". Manages story flags which are preserved
+ * between sessions.
+ * Provides an API for persistent browser storage, using Lockr
+ * License: MIT-0
  */
 
+/**
+ * setup - Global object.
+ */
 window.setup = window.setup || {};
 
-const controls = {};
+if (window.Lockr == undefined) {
+  // make sure Lockr is loaded.
+  throw new Error("achievements.js: Lockr.js was not loaded in time!");
+}
 
-controls.getFocusables = () => $("a[href], button, input, select, [tabindex]").filter(":visible");
+// Savegame format version
+// Can be updated to introduce breaking changes with previous achievement storage formats.
+setup.ACHIEVEMENT_KEY_VERSION = 8;
 
-controls.focusNext = () => {
-  const $focusables = controls.getFocusables();
-  let index = $focusables.index(document.activeElement);
-  if (index != -1) {
-    $focusables.eq(index + 1).focus();
+/**
+ * These achievements are used in Life of the Party
+ * Lotp Achievements are stored like [emoji, location, title, description]
+ */
+setup.ALL_ACHIEVEMENTS = setup.ALL_ACHIEVEMENTS || {};
+
+// Lockr key is the name of the story, plus the savegame version.
+Lockr.prefix = `${story.name} ${setup.ACHIEVEMENT_KEY_VERSION} `.replace(
+  /\s/g,
+  "_"
+);
+
+/**
+ * @returns {string[]} The list of achievements which are currently unlocked.
+ */
+setup.getAchievements = () => Lockr.smembers("achievements");
+/**
+ * @returns {string[]} The list of all achievements, with unlocked ones first.
+ */
+setup.getAllAchievementsSorted = () => {
+  return [
+    ...Object.keys(setup.ALL_ACHIEVEMENTS).filter((k) =>
+      setup.hasAchievement(k)
+    ),
+    ...Object.keys(setup.ALL_ACHIEVEMENTS).filter(
+      (k) => !setup.hasAchievement(k)
+    ),
+  ];
+};
+/**
+ * @returns {[number, number]} The number of active achievements, and the total.
+ */
+setup.getAchievementCount = () => {
+  return [
+    setup.getAchievements().length,
+    Object.keys(setup.ALL_ACHIEVEMENTS).length,
+  ];
+};
+/**
+ * @param {string} name The name of a valid achievement.
+ * @throws If the name is not a defined achievement.
+ */
+setup.addAchievement = (name) => {
+  if (name in setup.ALL_ACHIEVEMENTS) {
+    Lockr.sadd("achievements", name);
   } else {
-    if (story.$passageEl.find($focusables)[0]) {
-      story.$passageEl.find($focusables).first().focus();
-    } else {
-      $focusables.first().focus();
-    }
+    throw new Error(`${name} is not a valid achievement.`);
   }
-}
-controls.focusPrev = () => {
-  const $focusables = controls.getFocusables();
-  let index = $focusables.index(document.activeElement);
-  if (index >= 0) {
-    $focusables.eq(index - 1).focus();
-  } else {
-    controls.focusNext();
-    controls.focusPrev();
+};
+/**
+ * @param {string} name The name of an achievement
+ * @returns Whether the given achievement has been acquired.
+ */
+setup.hasAchievement = (name) => Lockr.sismember("achievements", name);
+
+setup.addAllAchievements = () => {
+  Object.keys(setup.ALL_ACHIEVEMENTS).forEach(setup.addAchievement);
+  story.show(passage.id);
+};
+setup.resetAchievements = () => Lockr.set("achievements", []);
+
+setup.resetAchievementsPrompt = function () {
+  const message = `This will reset your save file, including the ${
+    setup.getAchievements().length
+  } achievement(s) you have acquired so far.\n\nAre you sure you want to continue?`;
+  if (window.confirm(message)) {
+    Lockr.flush();
+    setup.restart();
   }
-}
-controls.selectFocused = () => {
-  const $focusables = controls.getFocusables();
-  if ($focusables.index(document.activeElement) != -1) {
-    document.activeElement.click();
-  } else {
-    controls.focusNext();
-  }
-}
-controls.goNext = () => {
-  let p = passage.id;
-  if (!$(":focus")[0]) {
-    window.history.forward();
-  }
-  if (p == passage.id) {
-    controls.selectFocused();
-  }
-}
+};
 
-$(document).keydown((e) => {
-  if ($(e.target).is("input[type!='button'], [contenteditable]")) {
-    return
-  }
-  switch (e.key.toLowerCase()) {
-    case "e":
-    case " ":
-      controls.selectFocused();
-      e.preventDefault();
-      break;
-    case "h":
-    case "a":
-      setup.undo();
-      e.preventDefault();
-      break;
-    case "d":
-    case "l":
-      controls.goNext();
-      e.preventDefault();
-      break;
-    case "w":
-    case "k":
-      controls.focusPrev();
-      e.preventDefault();
-      break;
-    case "s":
-    case "j":
-      controls.focusNext();
-      e.preventDefault();
-      break;
-  }
-});
-/* twine-user-script #6: "snow.js" */
-/*!
- * Snow.js, originally from kurisubrooks.com
- * This script is based on Snow.js, created by @kurisubrooks and @alecos71
- * License: MIT
-*/
+/*
+ * Story Flags API. These are represented as a hashset on an object.
+ */
 
-$(window).on("sm.passage.shown", function(){
-  if (!document.getElementById("sky")) {
-    return;
-  }
-  //get the cancvas and context and store in vars
-  const canvas = document.getElementById("sky");
-  const ctx = canvas.getContext("2d");
-
-
-  function getDimensions() {
-    return [
-      parseFloat(getComputedStyle(canvas).width),
-      parseFloat(getComputedStyle(canvas).height)
-    ];
-  }
-  let [width, height] = getDimensions();
-  document.addEventListener("resize", () => {
-    [width, height] = getDimensions();
-  })
-
-
-  //generate the snowflakes and apply attributes
-  const maxFlakes = 50; //max flakes
-  const flakes = [];
-
-  //loop through the empty flakes and apply attributes
-  for(let i = 0; i < maxFlakes; i++)
-  {
-    flakes.push({
-      x: Math.random()*width,
-      y: Math.random()*height,
-      r: Math.random()*2+1, //min of 2px and max of 7px
-      d: (Math.random() + 1) / 3 //density of the flake
-    })
-  }
-
-  //draw flakes onto canvas
-  function drawFlakes()
-  {
-    ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = "white";
-    ctx.beginPath();
-    for(const f of flakes) {
-      ctx.moveTo(f.x, f.y);
-      ctx.arc(f.x, f.y, f.r, 0, Math.PI*2, true);
-    }
-    ctx.fill();
-    moveFlakes();
-  }
-
-  //animate the flakes
-  var angle = 0;
-  function moveFlakes(){
-    angle += 0.01;
-    for(var i = 0; i < maxFlakes; i++)
-    {
-      //store current flake
-      var f = flakes[i];
-
-      //update X and Y coordinates of each snowflakes
-      f.y += Math.pow(f.d, 2) + 1;
-      f.x += Math.sin(angle) * 0.5 * f.d;
-
-      //if the snowflake reaches the bottom, send a new one to the top
-      if(f.y > height){
-        flakes[i] = {x: Math.random()*width, y: 0, r: f.r, d: f.d};
-      }
-    }
-  }
-
-  setInterval(drawFlakes, 25);
-});
-/* twine-user-script #7: "util.js" */
-// LICENSE: MIT-0
-
-// Global Variable: "setup"
-window.setup = window.setup || {};
-
-// Move story styles to before the passages.
-// This prioritizes styles declared inside passages.
-// $("tw-story style, tw-storydata style").appendTo($("head"));
-
-// DEBUG: Handle Errors without Crashing
-story.ignoreErrors = true;
-$(window).on("sm.story.error", (event, error) => {
-    if (story.ignoreErrors) {
-        const message =
-            `${error.message}
-        ---
-        Error occured while viewing "${window.passage ? passage.name : "undefined"}". Check debug console for for details.
-
-        To report this bug, please message the developer with the following:
-        1) What version is your browser?
-        2) Steps to reproduce?
-        3) A screenshot of the debug console
-        `;
-        window.alert(message);
-        console.error(error);
-    }
-})
-
-/* Adds passage tags to body[data-tags]. This enables CSS rules which change the page background based on passage tags.
-A sample selector looks like body[data-tags~="mytag"];
-*/
-$(window).on('sm.passage.shown', function (event, eventObject) {
+/** Get all flags which are set.
+ * @returns {object} Returns an object { [flagName]: count, ... }
+ */
+setup.getFlags = () => Lockr.get("flags", {});
+/**
+ *
+ * @param {string} name The flag to check
+ * @returns
+ */
+// Returns whether a flag is set to a non-zero value
+setup.isFlagSet = (name) => {
+  return !!Lockr.get("flags", {})[name];
+};
+/** Gets the count of a flag
+ * @param {string} name The name of the flag to check
+ * @returns {number} The number of times the flag was set
+ */
+setup.getFlag = (name) => {
+  let flags = Lockr.get("flags", {});
+  return +flags[name] | 0;
+};
+/**
+ * @param {string} name The flag to set
+ * @param {number} count The number to set it to (integer >= 0)
+ */
+setup.setFlag = (name, count = 1) => {
+  let flags = Lockr.get("flags", {});
+  flags[name] = Math.max(0, +count | 0); // increment
+  Lockr.set("flags", flags);
+};
+/**
+ * Adds a flag with the given name to the set of flags.
+ * @param {string} name The flag to increment
+ * @param {number} amt An integer number to add/subtract
+ */
+setup.addFlag = (name, amt = 1) => {
+  let count = setup.getFlag(name);
+  count = Math.max(0, (count + +amt) | 0); // increment
+  setup.setFlag(name, count);
+};
+/**
+ * Unsets a flag
+ * @param {string} name The flag to unset
+ */
+setup.unsetFlag = (name) => {
+  let flags = Lockr.get("flags");
+  flags[name] = undefined;
+  Lockr.set("flags", flags);
+};
+/**
+ * Unsets all flags.
+ */
+setup.resetFlags = () => Lockr.set("flags", {});
+/* twine-user-script #2: "backgrounds.js" */
+/**
+ * backgrounds.js
+ * LICENSE: MIT-0
+ *
+ * A small plugin for Snowman which makes it easy to apply passage-specific CSS rules using Twine tags.
+ * The attribute body[data-tags] is set to the tags of the currently active passage. You can style a specific tags using a CSS rule like body[data-tags~="mytag"] { background: green; }
+ */
+$(window).on("sm.passage.shown", function (event, eventObject) {
   $("body").attr("data-tags", passage.tags.join(" "));
 });
 
-// Set document language to English.
-// This causes <q> to implicitly render as curly double quotes.
-$("html").attr("lang", "en-us");
-
-$(window).on('sm.passage.shown', function (event, eventObject) {
-    $("a[href^='https']").attr("target", "_blank");
+/**
+ * On [vore] passages, change --bg-rotation (direction of background gradient)
+ * to a random value based on the passage number.
+ * This is specific to Life of the Party.
+ */
+$(window).on("sm.passage.shown", (ev, { passage }) => {
+  if (passage.tags.includes("vore")) {
+    let rotation = (passage.id * 30) % 360;
+    document.body.style.setProperty("--bg-rotation", `${rotation}deg`);
+  } else {
+    document.body.style.removeProperty("--bg-rotation");
+  }
 });
-/* twine-user-script #8: "Message" */
-$(window).on('sm.story.started', function (event, {
-  story
-}) {
-console.log(`${story.name} ${story.version}
-============================================================
-
-Hello, I'm Double-A. Thanks for playing my game!. If you're
-here, you're probably looking for juicy cheat codes, or
-you're stuck finding the more obscure achievements.
-
-To get the hidden zen ending, go outside and sit by yourself.
-
-To get the hidden broom closet ending, go to the broom
-closet.
-
-For the remaining endings, you'll just have to look around.
-
--AA
-
-=========================================================
-`);
-});
-/* twine-user-script #9: "Misc story variables" */
-story.version = `v0.4.0`;
-/* twine-user-script #10: "bunny2.js" */
+/* twine-user-script #3: "bunny2.js" */
 window.setup = window.setup || {};
 
 // Warm Place to Stay Message
@@ -767,7 +1004,534 @@ $(window).one("sm.story.started", () => {
 // If Twine "test", enable the debug menu
 if ($("tw-storydata").attr("options").includes("debug")) {
   storyFlags.assign({showDebug: true})
-}</script><tw-tag name="warm" color="red"></tw-tag><tw-tag name="flush" color="red"></tw-tag><tw-tag name="header" color="green"></tw-tag><tw-tag name="todo" color="orange"></tw-tag><tw-tag name="sidebar" color="green"></tw-tag><tw-tag name="start" color="green"></tw-tag><tw-tag name="vore" color="red"></tw-tag><tw-tag name="check" color="orange"></tw-tag><tw-tag name="checkpoint" color="yellow"></tw-tag><tw-tag name="cold" color="blue"></tw-tag><tw-passagedata pid="1" name="Header" tags="hide header" position="100,100" size="100,100">&lt;header.topbar.header-nav&gt;
+}
+/* twine-user-script #4: "devmode.js" */
+if (setup.isFlagSet("devmode") && !$(".dev-info")[0]) {
+    // Create devInfo element
+    const $devInfo = $(`<details class="dev-info" open></details>`)
+    $devInfo.appendTo($("body"));
+    // Title
+    $devInfo.append($("<summary>Developer Tools</summary>"));
+    // Console for showing useful data.
+    const $devInfoList = $(`<dl></dl>`);
+    $devInfoList.appendTo($devInfo);
+    $devInfoList.append(`<dt>passage.name</dt><dd data-exec="passage.name"></dd>`);
+    $devInfoList.append(`<dt>passage.tags</dt><dd data-exec="passage.tags"></dd>`);
+    $devInfoList.append(`<dt>story.state (<a href="javascript:void(0)"  onclick="story.state = {};">reset</a>)</dt><dd data-exec="story.state"></dd>`);
+    $devInfoList.append(`<dt>story.history.length</dt><dd data-exec="story.history.length"></dd>`);
+    $devInfoList.append(`<dt>setup.getFlags() (<a href="javascript:void(0)"  onclick="setup.resetAchievements(); setup.resetFlags(); setup.setFlag('devmode')">reset</a>)</dt><dd data-exec="setup.getFlags()"></dd>`);
+    // Commands
+    $devInfo.append(`<ul class="header-nav-group">
+    <li><a href="javascript:void(0)" onclick="story.show('Warp zone')">Warp zone</a></li>
+    <li><a href="javascript:void(0)"  onclick="story.save();">Save game</a></li>
+    <li><a href="javascript:void(0)"  onclick="window.location.reload();">Load game</a></li>
+    <li><a href="javascript:void(0)"  onclick="window.location.hash = '';">Clear save data</a></li>
+    </ul>`);
+    
+    $(window).on("sm.passage.shown", (ev, {passage}) => {
+        $devInfoList.find("[data-exec]")
+          .each((i, el) => {
+              $(el).text(JSON.stringify(eval($(el).attr("data-exec")), null, 2));
+          });
+    })
+}
+
+/* twine-user-script #5: "fade.js" */
+// LICENSE: MIT-0
+// Fadein effect when showing passages
+// Passages can disable this by adding the tag "no_fade"
+
+$(window).on('sm.passage.hidden', () => {
+  story.$passageEl.css({ opacity: 0 });
+})
+
+$(window).on('sm.passage.shown', (ev, { passage }) => {
+  const noFade = passage.tags.some(tag => tag === "no_fade");
+  story.$passageEl.animate({ opacity: 1 }, { duration: noFade ? 0 : "slow", queue: false });
+})
+/* twine-user-script #6: "header.js" */
+// LICENSE: MIT-0
+
+/* Page Header */
+/* use the tag `header` on a passage to render it before the passage */
+
+$(window).on('sm.story.started', function (event, {
+  story
+}) {
+  const passages = story.passages.filter(p => p);
+  const $headerEl = $("<header></header>").attr("id", "header");
+  passages.filter(p => p.tags.includes("header")).forEach(p => {
+    const html = $.parseHTML(story.render(p.id));
+    $(html).appendTo($headerEl);
+  })
+  $headerEl.insertBefore(story.$passageEl);
+});
+
+// Make a passage loading work like page loading
+$(window).on('sm.passage.hidden', function (event, {
+  story
+}) {
+  window.scrollTo(0, 0); // scroll to top
+  $(":focus").blur(); // unselect selected item
+});
+
+/* Previous Command API */
+// Show the text of the clicked link as the title of the next passage
+// e.g. the link [[Foo|Bar]] goes to the passage Bar, but shows Foo.
+$(window).on('sm.passage.shown', (e, {
+  passage
+}) => {
+  $("a").on("click", ({
+    currentTarget
+  }) => {
+    const $this = $(currentTarget);
+    // Data attributes:
+    // Add data-nocommand to use the linked passage's title
+    // Use data-command="..." to set custom titles
+    const data = $this.data();
+    if (data["command"] !== "" && data["nocommand"] !== "") {
+      story.state.previousCommand = data["command"] || $this.html();
+    }
+  })
+  const passageTitle = story.state.previousCommand || passage.name
+  $("#recent-command").html(passageTitle)
+  story.state.previousCommand = "";
+})
+/* twine-user-script #7: "history.js" */
+// LICENSE: MIT-0
+
+/* History Commands */
+
+window.setup = window.setup || {};
+
+// Undo Command
+setup.undo = () => {
+  window.history.back(); // load last checkpoint
+  $("#back-button:focus").blur(); // unfocus the back button
+}
+// Restart
+setup.restart = () => {
+  story.history = []; // erase history (resets page visit counts)
+  story.state = {}; // reset state
+
+  // reset the startPassage variable to a passage with the tag 'start'
+  const passages = story.passages.filter(p => p);
+  const start = passages.find(p => p.tags.includes("start"));
+  story.startPassage = start ? start.id : story.startPassage;
+  story.show(story.startPassage); // load startPassage
+}
+// save a Snowman checkpoint on every passage.
+$(window).on('sm.passage.shown', (e, {passage}) => {
+  if (!passage.tags.includes("no_checkpoint"))
+  story.checkpoint(); // required for "undo" to restore previous state
+})
+
+setup.rewind = () => {
+  if (story.history.length >= 1) {
+    let idx = _.findLastIndex(story.history.slice(0, -1),
+    id => story.passage(id).tags.includes("checkpoint"));
+    if (idx != -1) {
+      story.show(story.history[idx]);
+      story.history = story.history.slice(0, idx + 1);
+    } else {
+      setup.restart();
+    }
+  }
+}
+/* twine-user-script #8: "keybinds.js" */
+/*
+ * Keyboard Controls
+ */
+
+window.setup = window.setup || {};
+
+const controls = {};
+
+controls.getFocusables = () => $("a[href], button, input, select, [tabindex]").filter(":visible");
+
+controls.focusNext = () => {
+  const $focusables = controls.getFocusables();
+  let index = $focusables.index(document.activeElement);
+  if (index != -1) {
+    $focusables.eq(index + 1).focus();
+  } else {
+    if (story.$passageEl.find($focusables)[0]) {
+      story.$passageEl.find($focusables).first().focus();
+    } else {
+      $focusables.first().focus();
+    }
+  }
+}
+controls.focusPrev = () => {
+  const $focusables = controls.getFocusables();
+  let index = $focusables.index(document.activeElement);
+  if (index >= 0) {
+    $focusables.eq(index - 1).focus();
+  } else {
+    controls.focusNext();
+    controls.focusPrev();
+  }
+}
+controls.selectFocused = () => {
+  const $focusables = controls.getFocusables();
+  if ($focusables.index(document.activeElement) != -1) {
+    document.activeElement.click();
+  } else {
+    controls.focusNext();
+  }
+}
+controls.goNext = () => {
+  let p = passage.id;
+  if (!$(":focus")[0]) {
+    window.history.forward();
+  }
+  if (p == passage.id) {
+    controls.selectFocused();
+  }
+}
+
+$(document).keydown((e) => {
+  if ($(e.target).is("input[type!='button'], [contenteditable]")) {
+    return
+  }
+  switch (e.key.toLowerCase()) {
+    case "e":
+    case " ":
+      controls.selectFocused();
+      e.preventDefault();
+      break;
+    case "h":
+    case "a":
+      setup.undo();
+      e.preventDefault();
+      break;
+    case "d":
+    case "l":
+      controls.goNext();
+      e.preventDefault();
+      break;
+    case "w":
+    case "k":
+      controls.focusPrev();
+      e.preventDefault();
+      break;
+    case "s":
+    case "j":
+      controls.focusNext();
+      e.preventDefault();
+      break;
+  }
+});
+/* twine-user-script #9: "links.js" */
+// MIT-0
+$(window).on('sm.passage.shown', () => {
+  $("tw-passage ul a[href='javascript:void(0)'], .command-link").each((i, el) => {
+    $(el).unwrap("p");
+    $(el).parents("ul").not("[class]").addClass("commands-list");
+  })
+});
+/* twine-user-script #10: "snow.js" */
+/*!
+ * Snow.js, originally from kurisubrooks.com
+ * This script is based on Snow.js, created by @kurisubrooks and @alecos71
+ * License: MIT
+*/
+
+$(window).on("sm.passage.shown", function(){
+  if (!document.getElementById("sky")) {
+    return;
+  }
+  //get the cancvas and context and store in vars
+  const canvas = document.getElementById("sky");
+  const ctx = canvas.getContext("2d");
+
+
+  function getDimensions() {
+    return [
+      parseFloat(getComputedStyle(canvas).width),
+      parseFloat(getComputedStyle(canvas).height)
+    ];
+  }
+  let [width, height] = getDimensions();
+  document.addEventListener("resize", () => {
+    [width, height] = getDimensions();
+  })
+
+
+  //generate the snowflakes and apply attributes
+  const maxFlakes = 50; //max flakes
+  const flakes = [];
+
+  //loop through the empty flakes and apply attributes
+  for(let i = 0; i < maxFlakes; i++)
+  {
+    flakes.push({
+      x: Math.random()*width,
+      y: Math.random()*height,
+      r: Math.random()*2+1, //min of 2px and max of 7px
+      d: (Math.random() + 1) / 3 //density of the flake
+    })
+  }
+
+  //draw flakes onto canvas
+  function drawFlakes()
+  {
+    ctx.clearRect(0, 0, width, height);
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    for(const f of flakes) {
+      ctx.moveTo(f.x, f.y);
+      ctx.arc(f.x, f.y, f.r, 0, Math.PI*2, true);
+    }
+    ctx.fill();
+    moveFlakes();
+  }
+
+  //animate the flakes
+  var angle = 0;
+  function moveFlakes(){
+    angle += 0.01;
+    for(var i = 0; i < maxFlakes; i++)
+    {
+      //store current flake
+      var f = flakes[i];
+
+      //update X and Y coordinates of each snowflakes
+      f.y += Math.pow(f.d, 2) + 1;
+      f.x += Math.sin(angle) * 0.5 * f.d;
+
+      //if the snowflake reaches the bottom, send a new one to the top
+      if(f.y > height){
+        flakes[i] = {x: Math.random()*width, y: 0, r: f.r, d: f.d};
+      }
+    }
+  }
+
+  setInterval(drawFlakes, 25);
+});
+/* twine-user-script #11: "sound.js" */
+let howlerInitialized = false;
+$(document).on("sm.story.started sm.passage.showing", () => {
+  if (!howlerInitialized && window.Howl) {
+    howlerInit();
+    howlerInitialized = true;
+    console.info("Howler.js was loaded.")
+  }
+});
+
+const howlerInit = () => {
+
+  // Mute and unmute on load.
+  $(document).on("sm.passage.shown", () => {
+    if (!setup.isFlagSet("enableSound")) {
+      Howler.mute(true);
+    } else {
+      Howler.mute(false);
+    }
+  });
+
+  /*
+  Simple sound controller using howler.js
+  */
+  class SoundInstance {
+    /**
+     *
+     * @param {Howl} howlObject
+     */
+    constructor(howlObject) {
+      this.howl = howlObject;
+      this.playing = false;
+    }
+    fadeIn(duration = 1000) {
+      // If sound isn't playing yet, then fade in.
+      if (this.playing) {
+        return;
+      }
+      if (this.id == undefined) {
+        this.howl.load();
+        this.id = this.howl.play();
+      } else {
+        this.howl.play(this.id);
+      }
+      this.howl.fade(0.0, this.howl.volume(), duration, this.id);
+      this.playing = true;
+      this.howl.off("fade", this.id);
+    }
+    fadeOut(duration = 1000) {
+      if (this.howl.playing(this.id)) {
+        this.howl.fade(this.howl.volume(), 0.0, duration, this.id);
+        this.playing = false;
+        this.howl.once("fade", () => {
+          this.playing = false;
+          this.howl.pause(this.id);
+        }, this.id);
+      }
+    }
+  }
+
+  // Ambient bird noises for morning endings
+  const audioRootPath = "assets/sound/";
+
+  /**
+   *
+   * @param {Howl} howlObject
+   * @param  {...((passage: Passage) => boolean)} predicates
+   * @returns {number}
+   */
+  const passageAudio = (howlObject, ...predicates) => {
+    const soundInstance = new SoundInstance(howlObject);
+    $(window).on("sm.passage.shown", (ev, { passage }) => {
+      if (predicates.some(f => f(passage))) {
+        soundInstance.fadeIn();
+      } else {
+        soundInstance.fadeOut();
+      }
+    })
+    return soundInstance.id;
+  }
+
+  /**
+   *
+   * @param  {...any} tags
+   * @returns {(passage: Passage) => boolean}
+   */
+  const hasTags = (...tags) => (passage) => tags.every(t => passage.tags.includes(t));
+
+  const howlDefaults = {
+    loop: true,
+    volume: 0.1,
+    autoplay: false,
+    preload: false
+  }
+  // Chirping birds from freesound
+  // Used in the "morning after" passages
+  const birds = new Howl({
+    ...howlDefaults,
+    src: ["assets/sound/birds.mp3"],
+    volume: 0.05,
+  });
+  passageAudio(birds, hasTags("morning"));
+  // Stomach sounds from freesound
+  const gurgle = new Howl({
+    ...howlDefaults,
+    src: ["assets/sound/gurgle.mp3"],
+    volume: 1.0,
+  });
+  passageAudio(gurgle, hasTags("vore"));
+  // Crickets and suburban outdoor noises from freesound
+  const crickets = new Howl({
+    ...howlDefaults,
+    src: ["assets/sound/crickets.mp3"],
+    volume: 0.1,
+  });
+  passageAudio(crickets, hasTags("outside"));
+  // Ambient noise by CD_YIN_001.mp3 by kevp888
+  // Used in the zen scene
+  const zenMusic = new Howl({
+    ...howlDefaults,
+    src: ["assets/sound/kevp888 - CD_YIN_001.mp3"],
+    volume: 1.0,
+  });
+  passageAudio(zenMusic, hasTags("zen"));
+}
+/* twine-user-script #12: "util.js" */
+// LICENSE: MIT-0
+
+// Global Variable: "setup"
+window.setup = window.setup || {};
+
+// Move story styles to before the passages.
+// This prioritizes styles declared inside passages.
+// $("tw-story style, tw-storydata style").appendTo($("head"));
+
+// DEBUG: Handle Errors without Crashing
+story.ignoreErrors = true;
+$(window).on("sm.story.error", (event, error) => {
+    if (story.ignoreErrors) {
+        const message =
+            `${error.message}
+        ---
+        Error occured while viewing "${window.passage ? passage.name : "undefined"}". Check debug console for for details.
+
+        To report this bug, please message the developer with the following:
+        1) What version is your browser?
+        2) Steps to reproduce?
+        3) A screenshot of the debug console
+        `;
+        window.alert(message);
+        console.error(error);
+    }
+})
+
+/* Adds passage tags to body[data-tags]. This enables CSS rules which change the page background based on passage tags.
+A sample selector looks like body[data-tags~="mytag"];
+*/
+$(window).on('sm.passage.shown', function (event, eventObject) {
+  $("body").attr("data-tags", passage.tags.join(" "));
+});
+
+// Set document language to English.
+// This causes <q> to implicitly render as curly double quotes.
+$("html").attr("lang", "en-us");
+
+$(window).on('sm.passage.shown', function (event, eventObject) {
+    $("a[href^='https']").attr("target", "_blank");
+});
+/* twine-user-script #13: "Achievements from LOTP" */
+// The set of achievements from Life of the Party
+setup.ALL_ACHIEVEMENTS = {
+  ANA_VORE_ENDING: ["🗑️", "Outside Route", "No Laughing Matter", "Ana Ending"],
+  BASIL_VORE_ENDING: ["🐴", "Party Route", "Party Animals", "Basil Ending"],
+  HAZEL_VORE_ENDING: ["🐻", "Bathroom Route", "A Grizzly End", "Hazel Ending", "..."],
+  LACEY_VORE_ENDING: [`🎠`, "Bedroom Route", "Two for One Meal", "Lacey Ending", "Search...?"],
+  REN_VORE_ENDING: ["🦊", "Garage Route", "🐇🥱😊!!!", "Ren Ending"],
+  BYRON_VORE_ENDING: ["🐺", "Wolf Route", "Anyway, Here's...", "Byron Ending"],
+  NIKKI_NOX_VORE_ENDING: ["🍸", "Sauce Route", "Sauced & Swallowed", "Nikki & Nox Ending"],
+  MARCY_VORE_ENDING: ["🦨", "Stink Route", "WIP", "Marcy Ending"],
+  CLOSET_ENDING: ["🧹", "Closet Route", "Worth it?", "Broom Closet Ending"],
+  ZEN_ENDING: ["🌌", "Bench Route", "Space Out", "Zen Ending"],
+};
+/* twine-user-script #14: "Tweeomoji" */
+// Load Twemoji script
+
+const TWEMOJI_OPTIONS = {
+  folder: 'svg',
+  ext: '.svg'
+};
+
+const handleTwemoji = () => {
+  if (!window.twemoji) {
+    console.error("Twemoji script not loaded! Emoji will fallback to system font.");
+    return;
+  }
+  twemoji.parse(story.$passageEl[0], TWEMOJI_OPTIONS);
+}
+
+$(window).on('sm.passage.hidden sm.passage.shown', handleTwemoji);
+/* twine-user-script #15: "Message" */
+$(window).on('sm.story.started', function (event, {
+  story
+}) {
+// insert console.log here
+});
+/* twine-user-script #16: "Misc story variables" */
+story.version = `v0.4.0`;</script><tw-tag name="check" color="orange"></tw-tag><tw-tag name="cold" color="blue"></tw-tag><tw-tag name="flush" color="red"></tw-tag><tw-tag name="header" color="green"></tw-tag><tw-tag name="sidebar" color="green"></tw-tag><tw-tag name="todo" color="orange"></tw-tag><tw-tag name="warm" color="red"></tw-tag><tw-tag name="checkpoint" color="yellow"></tw-tag><tw-tag name="start" color="green"></tw-tag><tw-tag name="vore" color="red"></tw-tag><tw-passagedata pid="1" name="Achievements list" tags="" position="100,100" size="100,100">&lt;% const [count, max] = setup.getAchievementCount(); %&gt;
+
+### Achievements (&lt;%- count %&gt; &lt;span aria-label=&quot;of&quot;&gt;/&lt;/span&gt; &lt;%- max %&gt;)
+
+&lt;table class=&quot;table&quot;&gt;
+  &lt;% for (const key of setup.getAllAchievementsSorted()) {
+    const [emoji, route, name, desc] = setup.ALL_ACHIEVEMENTS[key];
+    let unlocked = setup.hasAchievement(key); %&gt;
+      &lt;tr class=&quot;&lt;% if (!unlocked) %&gt;locked-achievement&lt;%;%&gt;&quot;&gt;
+        &lt;td&gt;&lt;%= unlocked ? emoji: &quot;🔒&quot; %&gt;&lt;/span&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;%= unlocked ? `&lt;b&gt;${route}&lt;/b&gt;` : route %&gt;&lt;/td&gt;
+        &lt;td&gt;&lt;%= unlocked ? `&quot;${name}&quot; &lt;i&gt;(${desc})&lt;/i&gt;` : `&lt;i&gt;(Locked achievement)&lt;/i&gt;` %&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;% } %&gt;
+&lt;/table&gt;
+ 
+* &lt;a0 onclick=&quot;setup.resetAchievementsPrompt();&quot;&gt;Reset achievements.&lt;/a&gt;</tw-passagedata><tw-passagedata pid="2" name="Header" tags="hide header" position="225,100" size="100,100">&lt;header.topbar.header-nav&gt;
 	&lt;div.header-nav-group&gt;
           &lt;div&gt;&lt;a0 onclick=&quot;setup.restart()&quot;&gt;Restart&lt;/a&gt;&lt;/div&gt;
 	  &lt;div&gt;&lt;a0 onclick=&quot;setup.undo()&quot;&gt;Undo&lt;/a&gt;
@@ -780,7 +1544,7 @@ if ($("tw-storydata").attr("options").includes("debug")) {
   &lt;/div&gt;
 &lt;/header&gt;
 
-&lt;h2 id=&quot;recent-command&quot;&gt;&lt;/h2&gt;</tw-passagedata><tw-passagedata pid="2" name="Help" tags="no_checkpoint dark" position="225,100" size="100,100">\&gt; &lt;a0 onclick=&quot;setup.undo();&quot;&gt;Go back&lt;/a&gt;
+&lt;h2 id=&quot;recent-command&quot;&gt;&lt;/h2&gt;</tw-passagedata><tw-passagedata pid="3" name="Help" tags="no_checkpoint dark" position="350,100" size="100,100">\&gt; &lt;a0 onclick=&quot;setup.undo();&quot;&gt;Go back&lt;/a&gt;
 
 ### Keyboard controls
 
@@ -796,7 +1560,7 @@ if ($("tw-storydata").attr("options").includes("debug")) {
 
 ### Credits
 
-&lt;%= story.render(&quot;Credits&quot;) %&gt;</tw-passagedata><tw-passagedata pid="3" name="Credits" tags="dark" position="350,100" size="100,100">*A Warm Place to Stay* was written and developed by me, [▽ Double-A ▽](https://aryion.com/g4/user/DoubleA). &lt;!-- If you liked it, leave me feedback at [Eka&#39;s Portal](https://aryion.com/forum/viewtopic.php?f=79&amp;t=59177) or [textadventures.co.uk](http://textadventures.co.uk/games/view/fcvdqsoz7u2edrju9wb6ba/life-of-the-party-a-furry-vore-adventure-18)! --&gt;
+&lt;%= story.render(&quot;Credits&quot;) %&gt;</tw-passagedata><tw-passagedata pid="4" name="Credits" tags="dark" position="475,100" size="100,100">*A Warm Place to Stay* was written and developed by me, [▽ Double-A ▽](https://aryion.com/g4/user/DoubleA). &lt;!-- If you liked it, leave me feedback at [Eka&#39;s Portal](https://aryion.com/forum/viewtopic.php?f=79&amp;t=59177) or [textadventures.co.uk](http://textadventures.co.uk/games/view/fcvdqsoz7u2edrju9wb6ba/life-of-the-party-a-furry-vore-adventure-18)! --&gt;
 
 If you really enjoyed this, and want me to spend more time making things like it, consider supporting me at [☕ Ko-fi](https://ko-fi.com/doublea).
 
@@ -810,9 +1574,9 @@ Special thanks to the creators and contributors of the following open source pro
 
 ### License
 
-&lt;%= story.render(&quot;License&quot;) %&gt;</tw-passagedata><tw-passagedata pid="4" name="License" tags="" position="475,100" size="100,100">Copyright © 2021 Double-A. The [content of this story](https://github.com/double-a-stories/life-of-the-party) is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). You are free to share and adapt this text in any medium **with attribution** for **non-commercial purposes** under **the same license**.
+&lt;%= story.render(&quot;License&quot;) %&gt;</tw-passagedata><tw-passagedata pid="5" name="License" tags="" position="600,100" size="100,100">Copyright © 2021 Double-A. The [content of this story](https://github.com/double-a-stories/life-of-the-party) is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). You are free to share and adapt this text in any medium **with attribution** for **non-commercial purposes** under **the same license**.
 
-The author(s) provide this hypertext “as is”, without warranty of any kind, either express or implied, including but not limited to, the implied warranties of **sexiness or fitness for a particular fetish**. The entire risk as to the quality and performance of this fiction is with you. Should the story prove unsexy, you assume the cost of all necessary servicing, repair, or brain bleach.</tw-passagedata><tw-passagedata pid="5" name="Warp zone" tags="" position="600,100" size="100,100">&lt;table class=&quot;table&quot;&gt;
+The author(s) provide this hypertext “as is”, without warranty of any kind, either express or implied, including but not limited to, the implied warranties of **sexiness or fitness for a particular fetish**. The entire risk as to the quality and performance of this fiction is with you. Should the story prove unsexy, you assume the cost of all necessary servicing, repair, or brain bleach.</tw-passagedata><tw-passagedata pid="6" name="Warp zone" tags="" position="725,100" size="100,100">&lt;table class=&quot;table&quot;&gt;
 &lt;thead&gt;
   &lt;tr&gt;
     &lt;th&gt;id&lt;/th&gt;
@@ -833,7 +1597,7 @@ The author(s) provide this hypertext “as is”, without warranty of any kind, 
   &lt;/tr&gt;
 &lt;% }); %&gt;
 &lt;/tbody&gt;
-&lt;/table&gt;</tw-passagedata><tw-passagedata pid="6" name="Debug room." tags="" position="725,100" size="100,100">Hollis walks into the debug room, which is impossible, because there are no doors to either enter or exit the debug room. It literally does not exist.</tw-passagedata><tw-passagedata pid="7" name="A Warm Place to Stay." tags="cold" position="850,100" size="100,100">&lt;style&gt;
+&lt;/table&gt;</tw-passagedata><tw-passagedata pid="7" name="Debug room." tags="" position="850,100" size="100,100">Hollis walks into the debug room, which is impossible, because there are no doors to either enter or exit the debug room. It literally does not exist.</tw-passagedata><tw-passagedata pid="8" name="A Warm Place to Stay." tags="cold" position="975,100" size="100,100">&lt;style&gt;
 body { transition: opacity 2s, background-color 0s; }
 &lt;/style&gt;
 
@@ -843,7 +1607,7 @@ You&#39;re in the driver&#39;s seat of a small car on the side of the road. An e
 
 According to your stereo, it&#39;s 7:&lt;%= (new Date().getMinutes() &lt; 10 ? &quot;0&quot;:&quot;&quot;) + new Date().getMinutes()%&gt; PM.
 
-\&gt; [[Take inventory.]]</tw-passagedata><tw-passagedata pid="8" name="Take inventory." tags="cold" position="975,100" size="100,100">An hour ago, you were driving down a narrow highway, on your way across the state of Northaven. The falling snow started out light, but got heavier and heaver. You struck a patch of black ice, swerved off the road, and got a flat tire in the process. Now you&#39;re stuck, sitting inside a tiny sedan in a ditch on the side of the road in the middle of nowhere, with little hope of rescue.
+\&gt; [[Take inventory.]]</tw-passagedata><tw-passagedata pid="9" name="Take inventory." tags="cold" position="1100,100" size="100,100">An hour ago, you were driving down a narrow highway, on your way across the state of Northaven. The falling snow started out light, but got heavier and heaver. You struck a patch of black ice, swerved off the road, and got a flat tire in the process. Now you&#39;re stuck, sitting inside a tiny sedan in a ditch on the side of the road in the middle of nowhere, with little hope of rescue.
 
 In your handbag, you have a cell phone, a credit card, a rewards card for a drive-thru coffee chain, and a wallet containing seven (7) dollars.
 
@@ -851,7 +1615,7 @@ What will you do?
 
 &lt;%= story.render(&quot;Car Commands&quot;) %&gt;
 
-&lt;div-&gt;[[Car Commands]]&lt;/div&gt;</tw-passagedata><tw-passagedata pid="9" name="Car Commands" tags="" position="1100,100" size="100,100">&lt;%
+&lt;div-&gt;[[Car Commands]]&lt;/div&gt;</tw-passagedata><tw-passagedata pid="10" name="Car Commands" tags="" position="1225,100" size="100,100">&lt;%
 const carPassages = [&quot;Try calling for help.&quot;, &quot;Check for spare tire.&quot;, &quot;Turn on hazards.&quot;];
 const seenEvery = carPassages.every(p =&gt; visited(p)); %&gt;
 
@@ -871,27 +1635,27 @@ const seenEvery = carPassages.every(p =&gt; visited(p)); %&gt;
 
 &lt;% } %&gt;
 
-&lt;div-&gt;[[Try calling for help.]][[Check for spare tire.]][[Turn on hazards.]]&lt;/div&gt;</tw-passagedata><tw-passagedata pid="10" name="Try calling for help." tags="cold" position="1225,100" size="100,100">Yep, already tried &lt;%= visited(&quot;Check for spare tire.&quot;) ? &quot;that too.&quot; : &quot;that.&quot; %&gt;
+&lt;div-&gt;[[Try calling for help.]][[Check for spare tire.]][[Turn on hazards.]]&lt;/div&gt;</tw-passagedata><tw-passagedata pid="11" name="Try calling for help." tags="cold" position="100,225" size="100,100">Yep, already tried &lt;%= visited(&quot;Check for spare tire.&quot;) ? &quot;that too.&quot; : &quot;that.&quot; %&gt;
 
 You pull out your little cell phone, if only confirm that it still has no reception. You wave it around in the air for a moment, trying to get a signal. No dice.
 
 Either the snowstorm is messing with the cell towers, or the cellular infrastructure of rural Northaven simply leaves a lot to be desired.
 
-&lt;%= story.render(&quot;Car Commands&quot;) %&gt;</tw-passagedata><tw-passagedata pid="11" name="Check for spare tire." tags="cold" position="100,225" size="100,100">Good thinking. Unfortunately, you&#39;ve actually been driving on the spare for the last year or so. Come to think of it, that might be why it gave out so easily.
+&lt;%= story.render(&quot;Car Commands&quot;) %&gt;</tw-passagedata><tw-passagedata pid="12" name="Check for spare tire." tags="cold" position="225,225" size="100,100">Good thinking. Unfortunately, you&#39;ve actually been driving on the spare for the last year or so. Come to think of it, that might be why it gave out so easily.
 
 Well, hindsight&#39;s 20/20, and all.
 
-&lt;%= story.render(&quot;Car Commands&quot;) %&gt;</tw-passagedata><tw-passagedata pid="12" name="Turn on hazards." tags="cold" position="225,225" size="100,100">You do that. If you’re lucky, someone might notice and help you out. Of course that would require someone to actually be driving on this road, which, in your experience so far, does not happen very often. You haven’t seen another car in over 20 minutes.
+&lt;%= story.render(&quot;Car Commands&quot;) %&gt;</tw-passagedata><tw-passagedata pid="13" name="Turn on hazards." tags="cold" position="350,225" size="100,100">You do that. If you’re lucky, someone might notice and help you out. Of course that would require someone to actually be driving on this road, which, in your experience so far, does not happen very often. You haven’t seen another car in over 20 minutes.
 
 Well, you&#39;re officially out of ideas.
 
-\&gt; [[Await slow and chilly death.]]</tw-passagedata><tw-passagedata pid="13" name="Await slow and chilly death." tags="cold" position="350,225" size="100,100">Your fuzzy ears droop behind your head in sorrow, and you resign to your inevitable, icy fate. The cruel reality of your situation sinks in. You can feel the clutches of frostbite already taking hold of...
+\&gt; [[Await slow and chilly death.]]</tw-passagedata><tw-passagedata pid="14" name="Await slow and chilly death." tags="cold" position="475,225" size="100,100">Your fuzzy ears droop behind your head in sorrow, and you resign to your inevitable, icy fate. The cruel reality of your situation sinks in. You can feel the clutches of frostbite already taking hold of...
 
 Okay, you&#39;re being kind of dramatic. You&#39;re not gonna die; you&#39;ve got fur to keep you warm, not to mention the car&#39;s heater. In the worst case, you&#39;ll just have to wait the storm out. Still, it&#39;s not how you expected to spend tonight.
 
 If you&#39;d known you were going to get stuck in a snowstorm, you might have at least worn some pants today.
 
-\&gt; [[Wait, I&#39;m not wearing pants?]]</tw-passagedata><tw-passagedata pid="14" name="Wait, I&#39;m not wearing pants?" tags="cold" position="475,225" size="100,100">No, of course you&#39;re not. What a silly thing for you to wonder.
+\&gt; [[Wait, I&#39;m not wearing pants?]]</tw-passagedata><tw-passagedata pid="15" name="Wait, I&#39;m not wearing pants?" tags="cold" position="600,225" size="100,100">No, of course you&#39;re not. What a silly thing for you to wonder.
 
 You, Juniper Greenall, are a rabbit living in a society of anthropomorphic mammals. Like most people, you are furry enough &quot;down there&quot; that you don&#39;t consider pants to be a necessary garment, except on especially formal occasions. As long as you&#39;re wearing either a top or a bottom, (in your case, a jacket and a plain undershirt) you&#39;re fully clothed. Porky Pig-style.
 
@@ -899,7 +1663,7 @@ It&#39;s gonna be a long night. There will be plenty of time to think about the 
 
 *VrooOOOOoom.*
 
-\&gt; [[What was that?]]</tw-passagedata><tw-passagedata pid="15" name="What was that?" tags="cold checkpoint" position="600,225" size="100,100">Outside, you hear an engine roar and come to a stop. Your windshield is almost too caked in snow to make it out, but you can just barely see a huge pickup truck as it pulls off the road and parks in front of you.
+\&gt; [[What was that?]]</tw-passagedata><tw-passagedata pid="16" name="What was that?" tags="cold checkpoint" position="725,225" size="100,100">Outside, you hear an engine roar and come to a stop. Your windshield is almost too caked in snow to make it out, but you can just barely see a huge pickup truck as it pulls off the road and parks in front of you.
 
 From the truck, a huge, broad-shouldered figure emerges, and begins to trudge through the snow toward your car. Great. You&#39;re either about to be rescued, or violently abducted.
 
@@ -915,7 +1679,7 @@ A polar bear in a puffy winter coat. They&#39;re standing outside your car and p
 
 &lt;/div&gt;
 
-&lt;div-&gt;[[Just ignore.]]&lt;/div&gt;</tw-passagedata><tw-passagedata pid="16" name="Just ignore." tags="cold" position="725,225" size="100,100">Faced with the sudden appearance of a potential predator, your natural instincts kick in. You go perfectly still, ignoring the polar bear completely.
+&lt;div-&gt;[[Just ignore.]]&lt;/div&gt;</tw-passagedata><tw-passagedata pid="17" name="Just ignore." tags="cold" position="850,225" size="100,100">Faced with the sudden appearance of a potential predator, your natural instincts kick in. You go perfectly still, ignoring the polar bear completely.
 
 This probably won&#39;t help. Not only has &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; already seen you, but &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt;&#39;s probably not a predator either. Bears—and most carnivores in general—are not ravenous murderers who devour any stranger they come across. Eating people is, in fact, quite frowned upon. Unsolicited predation is extremely uncommon, although the news headlines tend to blow it out of proportion.
 
@@ -927,7 +1691,7 @@ This probably won&#39;t help. Not only has &lt;%=s.g?&quot;he&quot;:&quot;she&qu
 
 \&gt; [[Roll the window down.]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="17" name="Keep ignoring." tags="cold" position="850,225" size="100,100">You continue paying no attention to the polar bear. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; scratches &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; head awkwardly.
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="18" name="Keep ignoring." tags="cold" position="975,225" size="100,100">You continue paying no attention to the polar bear. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; scratches &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; head awkwardly.
 
 Okay, this is stupid, and also kind of speciesist? This bear is your only hope of rescue, and &lt;%=s.g?&quot;he&#39;s&quot;:&quot;she&#39;s&quot;%&gt; probably a well-adjusted, perfectly ordinary person, content to eat a civilized diet of fish and dairy. Despite what your &quot;old-fashioned&quot; parents would think, bears are not all rabbit-gulping vore machines. Try to be a little more open minded.
 
@@ -935,7 +1699,7 @@ The polar bear taps on your window again. &quot;Er, is rabbit okay? Should I go?
 
 You&#39;re gonna be here all night if you don&#39;t talk to &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt;.
 
-\&gt; [[Roll the window down.]]</tw-passagedata><tw-passagedata pid="18" name="Roll the window down." tags="cold" position="975,225" size="100,100">Drafty, snowy air blows in. The polar bear crouches down to peer at you through the open window. You finally get a better look at &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt;.
+\&gt; [[Roll the window down.]]</tw-passagedata><tw-passagedata pid="19" name="Roll the window down." tags="cold" position="1100,225" size="100,100">Drafty, snowy air blows in. The polar bear crouches down to peer at you through the open window. You finally get a better look at &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt;.
 
 Most notably, &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt;&#39;s huge. &lt;%=s.g?&quot;His&quot;:&quot;Her&quot;%&gt; bear-sized face almost fully eclipses the window of your decidedly rabbit-sized car.
 &lt;%=s.g?&quot;His&quot;:&quot;Her&quot;%&gt; &quot;robust&quot; figure is only widened by the thick blue winter coat &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt;&#39;s wearing. And as we established earlier, no pants. You get the feeling that the people in this world have very different standards of modesty. And by &quot;get the feeling,&quot; you mean you&#39;ve known this all along.
@@ -950,7 +1714,7 @@ You&#39;d probably be more intimidated by this huge hunk of &lt;%=s.g?&quot;musc
 
 \&gt; [[Jump down &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; throat.|Jump down their throat.]] *(Route 2)*
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="19" name="Yes, I do need help actually..." tags="cold" position="1100,225" size="100,100">Yes, you say, you&#39;ve got a flat tire, and you&#39;re stuck here.
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="20" name="Yes, I do need help actually..." tags="cold" position="1225,225" size="100,100">Yes, you say, you&#39;ve got a flat tire, and you&#39;re stuck here.
 
 The bear pauses thoughtfully. &quot;You have spare?&quot; &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; asks. You shake your head no. &quot;Hmm,&quot; &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; says with a paw on &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; chin, &quot;Snow too heavy. Can&#39;t move car right now.&quot;
 
@@ -962,7 +1726,7 @@ Your eyes go wide. A ride to a hotel? That&#39;s actually extremely convenient! 
 
 Then again, the alternative is spending all night in a chilly car, so you probably better accept.
 
-\&gt; [[Hitch a ride.]]</tw-passagedata><tw-passagedata pid="20" name="Hitch a ride." tags="cold" position="1225,225" size="100,100">Yes, you say, you could use a lift.
+\&gt; [[Hitch a ride.]]</tw-passagedata><tw-passagedata pid="21" name="Hitch a ride." tags="cold" position="100,350" size="100,100">Yes, you say, you could use a lift.
 
 &quot;Good,&quot; the bear says, &quot;I am glad to assist with such a thing. Come when you are ready.&quot; &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; walks back to &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; car, and opens the passenger door for you.
 
@@ -978,7 +1742,7 @@ Th-thanks, you stammer.
 
 \&gt; [[Look out the window.]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="21" name="Look out the window." tags="cold" position="100,350" size="100,100">The two of you sit in awkward silence for a little bit, as the polar bear carefully drives the two of you down the narrow highway covered in snowy sludge. Occasionally a dense patch of fir trees passes by. You twiddle your paws. The seatbelts in this vehicle are way too large for your little body.
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="22" name="Look out the window." tags="cold" position="225,350" size="100,100">The two of you sit in awkward silence for a little bit, as the polar bear carefully drives the two of you down the narrow highway covered in snowy sludge. Occasionally a dense patch of fir trees passes by. You twiddle your paws. The seatbelts in this vehicle are way too large for your little body.
 
 &quot;Rabbit is not a talkative one, yes?&quot; the bear observes.
 
@@ -994,7 +1758,7 @@ In truth, you were distracted, thinking about how powerless you&#39;d be to stop
 
 \&gt; [[Of course! My name is...]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="22" name="Of course! My name is..." tags="cold" position="225,350" size="100,100">&quot;Juniper. Hm. This is a sweet sounding name. It reminds me of winter meals in my home,&quot; says the polar bear. &quot;My name is Zasha, protector of creatures large and small.&quot;
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="23" name="Of course! My name is..." tags="cold" position="350,350" size="100,100">&quot;Juniper. Hm. This is a sweet sounding name. It reminds me of winter meals in my home,&quot; says the polar bear. &quot;My name is Zasha, protector of creatures large and small.&quot;
 
 You nod, then return to awkwardly twiddling your paws. Zasha also says nothing.  You&#39;ve never hitch-hiked before, so you&#39;re not very good at the small-talk. You&#39;re also very intimidated by the gigantic polar bear who has offered you help.
 
@@ -1006,7 +1770,7 @@ You nod, then return to awkwardly twiddling your paws. Zasha also says nothing. 
 
 \&gt; [[Do you live around here?]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="23" name="Do you live around here?" tags="cold checkpoint" position="350,350" size="100,100">&quot;Not especially,&quot; says Zasha. &quot;Zasha considers &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt;self as nomad. Often moving from place to place. Tonight staying in hotel on way east, for next job.&quot;
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="24" name="Do you live around here?" tags="cold checkpoint" position="475,350" size="100,100">&quot;Not especially,&quot; says Zasha. &quot;Zasha considers &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt;self as nomad. Often moving from place to place. Tonight staying in hotel on way east, for next job.&quot;
 
 You nod, glancing around the truck&#39;s interior, until your eyes fix on a metal toolbox on the floor by your feet. You hope it&#39;s not too personal a question, but what does &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; do for a living?
 
@@ -1018,7 +1782,7 @@ You nod, glancing around the truck&#39;s interior, until your eyes fix on a meta
 
 \&gt; [[Press for more information.]] *(Route 3)*
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="24" name="Nod agreeably." tags="cold" position="475,350" size="100,100">Yup, nothing suspicious there.
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="25" name="Nod agreeably." tags="cold" position="600,350" size="100,100">Yup, nothing suspicious there.
 
 &quot;And you?&quot; Zasha asks, &quot;If you do not mind, where is Juniper headed?&quot;
 
@@ -1028,9 +1792,9 @@ Zasha nods, eager to change the subject. You ride together in silence for a minu
 
 &lt;%= story.render(&quot;Arrive at the hotel.&quot;)%&gt;
 
-&lt;div-&gt;[[Arrive at the hotel.]]&lt;/div&gt;</tw-passagedata><tw-passagedata pid="25" name="Arrive at the hotel." tags="cold" position="600,350" size="100,100">Scenery whizzes past. Eventually Zasha turns off the road, and into the parking lot of a roadside hotel, just as promised. It&#39;s a meager two-story lodge, probably converted from an old house or something. It&#39;s small, but in a quaint, charming way.
+&lt;div-&gt;[[Arrive at the hotel.]]&lt;/div&gt;</tw-passagedata><tw-passagedata pid="26" name="Arrive at the hotel." tags="cold" position="725,350" size="100,100">Scenery whizzes past. Eventually Zasha turns off the road, and into the parking lot of a roadside hotel, just as promised. It&#39;s a meager two-story lodge, probably converted from an old house or something. It&#39;s small, but in a quaint, charming way.
 
-\&gt; [[Get out of the truck.]]</tw-passagedata><tw-passagedata pid="26" name="Get out of the truck." tags="cold" position="725,350" size="100,100">You shudder as you step outside into the chilly air. The entrance is only a short walk away, but in this cold, it feels like a million miles.
+\&gt; [[Get out of the truck.]]</tw-passagedata><tw-passagedata pid="27" name="Get out of the truck." tags="cold" position="850,350" size="100,100">You shudder as you step outside into the chilly air. The entrance is only a short walk away, but in this cold, it feels like a million miles.
 
 Zasha notices your discomfort, and frowns. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; holds open &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; puffy coat to reveal the fur of &lt;%=s.g?&quot;his bare&quot;:&quot;her naked&quot;%&gt; belly and chest, as if inviting you to huddle against it for warmth. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt;&#39;s... not wearing anything underneath. You feel your cheeks redden, either from embarassment, or from the sheer cold nipping at them.
 
@@ -1042,14 +1806,14 @@ Zasha notices your discomfort, and frowns. &lt;%=s.g?&quot;He&quot;:&quot;She&qu
 
 \&gt; [[Tough it out.]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="27" name="Cozy up inside Zasha&#39;s coat." tags="warm" position="850,350" size="100,100">&lt;% console.debug(`Set s.snuggled_up from ${s.snuggled_up} to true.`);
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="28" name="Cozy up inside Zasha&#39;s coat." tags="warm" position="975,350" size="100,100">&lt;% console.debug(`Set s.snuggled_up from ${s.snuggled_up} to true.`);
 s.snuggled_up = true %&gt;
 
 You blush, and reluctantly step into the inviting warmth of Zasha&#39;s fur. It&#39;s unbelievably soft. You cozy up against it, and &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; considerately pulls &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; jacket around you, almost as if to squeeze you tighter against &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt;. Zasha begins guiding the two of you through the parking lot.
 
 The polar bear&#39;s pudgy gut jiggles a little with each step. Normally, you&#39;d feel nervous about being so close to a bear—not to mention, a bear&#39;s stomach—but it&#39;s so bitterly cold out, you can only feel grateful for this warm gesture. &lt;%=s.g?&quot;His&quot;:&quot;Her&quot;%&gt; fur is softer than you could have imagined.
 
-\&gt; [[Th-thank you...|Thanks for the warmth.]]</tw-passagedata><tw-passagedata pid="28" name="Thanks for the warmth." tags="warm" position="975,350" size="100,100">Thank you, you tell Zasha, poking your head out to see where you&#39;re going.
+\&gt; [[Th-thank you...|Thanks for the warmth.]]</tw-passagedata><tw-passagedata pid="29" name="Thanks for the warmth." tags="warm" position="1100,350" size="100,100">Thank you, you tell Zasha, poking your head out to see where you&#39;re going.
 
 &quot;There is no need for such gratitudes, Rabbit,&quot; Zasha says, still looking ahead, &quot;it is duty of a bear to help all creatures.&quot;
 
@@ -1057,7 +1821,7 @@ You remind Zasha that your name is Juniper, not Rabbit. &lt;%=s.g?&quot;He&quot;
 
 The automatic doors have seen better days, but they slowly and creakily slide open, bringing in a little draft into the lobby. Zasha opens &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; jacket to release you into the warm air of the lobby. You reluctantly step away, and dust a few white hairs from your jacket.
 
-\&gt; [[Enter the hotel.]]</tw-passagedata><tw-passagedata pid="29" name="Tough it out." tags="cold" position="1100,350" size="100,100">You politely refuse the gesture, and walk quickly and purposefully to the door, wincing as icy pain attacks the pads of your feet. Zasha trails behind at a plodding pace, dragging with &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt; a large, boxy suitcase. By the time you make it to the hotel&#39;s entrance, your teeth are already chattering.
+\&gt; [[Enter the hotel.]]</tw-passagedata><tw-passagedata pid="30" name="Tough it out." tags="cold" position="1225,350" size="100,100">You politely refuse the gesture, and walk quickly and purposefully to the door, wincing as icy pain attacks the pads of your feet. Zasha trails behind at a plodding pace, dragging with &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt; a large, boxy suitcase. By the time you make it to the hotel&#39;s entrance, your teeth are already chattering.
 
 The automatic sliding doors look really old. You walk up to them, but they do not detect your presence. You impatiently wave a hand around, but can&#39;t get the sensor to trip. When it finally does sense you, the door opens a few inches, then slows to a creaking halt. Wow, you&#39;re 0–2 for mechanical failures today, huh.
 
@@ -1065,7 +1829,7 @@ Zasha sees the door failing to open, and sees you shuddering and rubbing your sh
 
 &quot;There we go,&quot; &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; says, &quot;silly machine no match for Zasha.&quot; &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; gestures for you to enter.
 
-\&gt; [[Enter the hotel.]]</tw-passagedata><tw-passagedata pid="30" name="Enter the hotel." tags="" position="1225,350" size="100,100">The hotel lobby is small and quaint, containing a short desk with a bell, and another table covered in little pamphlets advertising nearby curiosities. A bored-looking fox in a concierge&#39;s uniform is sitting at the desk. Across from the desk is an elevator which is currently out of order. To the left is a hallway which presumably leads to the hotel&#39;s rooms.
+\&gt; [[Enter the hotel.]]</tw-passagedata><tw-passagedata pid="31" name="Enter the hotel." tags="" position="100,475" size="100,100">The hotel lobby is small and quaint, containing a short desk with a bell, and another table covered in little pamphlets advertising nearby curiosities. A bored-looking fox in a concierge&#39;s uniform is sitting at the desk. Across from the desk is an elevator which is currently out of order. To the left is a hallway which presumably leads to the hotel&#39;s rooms.
 
 You take a quick breather while Zasha checks into &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; reservation. You&#39;re glad you have your credit card with you. You&#39;ll book a room after &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt;.
 
@@ -1073,13 +1837,13 @@ You see the concierge give Zasha a couple of room keys. &lt;%=s.g?&quot;He&quot;
 
 &quot;&lt;%= s.snuggled_up ? &quot;Juniper&quot; : &quot;Rabbit&quot;%&gt;, do you wish to sleep with me tonight?&quot;
 
-\&gt; [[W-what?]]</tw-passagedata><tw-passagedata pid="31" name="W-what?" tags="warm" position="100,475" size="100,100">Your face flushes, and your ears stick straight up with surprise. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; wants to sleep with you??
+\&gt; [[W-what?]]</tw-passagedata><tw-passagedata pid="32" name="W-what?" tags="warm" position="225,475" size="100,100">Your face flushes, and your ears stick straight up with surprise. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; wants to sleep with you??
 
 You stammer to say that s-sorry, you don&#39;t think of &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt; that way! &lt;%= s.snuggled_up ? `Even considering how warm ${s.g?&quot;his&quot;:&quot;her&quot;} fur was...`:`Though you&#39;re very thankful that ${s.g?&quot;he&quot;:&quot;she&quot;} rescued you!`%&gt;
 
 Zasha&#39;s eyes go wide as &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; realizes &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; mistake. &quot;Oh! I did not intend to suggest such a... prurient thing! I simply offer for you to sleep in my hotel room at no cost to you.&quot;
 
-\&gt; [[Oh! Of course, ha-ha.]]</tw-passagedata><tw-passagedata pid="32" name="Oh! Of course, ha-ha." tags="" position="225,475" size="100,100">You laugh awkwardly. Right, that&#39;s what you thought &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; meant too. Obviously.
+\&gt; [[Oh! Of course, ha-ha.]]</tw-passagedata><tw-passagedata pid="33" name="Oh! Of course, ha-ha." tags="" position="350,475" size="100,100">You laugh awkwardly. Right, that&#39;s what you thought &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; meant too. Obviously.
 
 &quot;Would you like to share room with me,&quot; asks Zasha, clearly&amp;nbsp;somewhat flustered.
 
@@ -1091,7 +1855,7 @@ You&#39;re not overly tempted to accept &lt;%=s.g?&quot;his&quot;:&quot;her&quot
 
 \&gt; [[Politely refuse.]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="33" name="Politely refuse." tags="" position="350,475" size="100,100">You tell Zasha that you really appreciate all the help &lt;%=s.g?&#39;he&#39;:&#39;she&#39;%&gt;&#39;s provided, but that you can handle it from here. You&#39;ll just book yourself a room, and get your car towed tomorrow.
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="34" name="Politely refuse." tags="" position="475,475" size="100,100">You tell Zasha that you really appreciate all the help &lt;%=s.g?&#39;he&#39;:&#39;she&#39;%&gt;&#39;s provided, but that you can handle it from here. You&#39;ll just book yourself a room, and get your car towed tomorrow.
 
 &lt;%=s.g?&#39;He&#39;:&#39;She&#39;%&gt; seems kind of crestfallen, but nods in agreement.
 
@@ -1101,7 +1865,7 @@ But, you say, um, is there any way you can repay &lt;%=s.g?&#39;him&#39;:&#39;he
 
 You graciously wave adieu to Zasha, then turn to the concierge to get your own room situation sorted.
 
-\&gt; [[Talk to the concierge.]]</tw-passagedata><tw-passagedata pid="34" name="Talk to the concierge." tags="" position="475,475" size="100,100">You stride confidently toward the concierge&#39;s desk. &lt;%=!s.g?&quot;He&quot;:&quot;She&quot;%&gt;&#39;s a red &lt;%=!s.g?&quot;fox&quot;:&quot;vixen&quot;%&gt;, and it seems as though the two of you have interrupted &lt;%=!s.g?&quot;his&quot;:&quot;her&quot;%&gt; extremely important perusal of a fashion magazine.
+\&gt; [[Talk to the concierge.]]</tw-passagedata><tw-passagedata pid="35" name="Talk to the concierge." tags="" position="600,475" size="100,100">You stride confidently toward the concierge&#39;s desk. &lt;%=!s.g?&quot;He&quot;:&quot;She&quot;%&gt;&#39;s a red &lt;%=!s.g?&quot;fox&quot;:&quot;vixen&quot;%&gt;, and it seems as though the two of you have interrupted &lt;%=!s.g?&quot;his&quot;:&quot;her&quot;%&gt; extremely important perusal of a fashion magazine.
 
 Hello, you say! You&#39;re looking to book a-
 
@@ -1111,7 +1875,7 @@ Hello, you say! You&#39;re looking to book a-
 
 \&gt; [[You&#39;re sure that there aren&#39;t any other rooms?]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="35" name="You&#39;re sure that there aren&#39;t any other rooms?" tags="" position="600,475" size="100,100">The concierge looks at you, then back at the sign as if pretending to double-check.
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="36" name="You&#39;re sure that there aren&#39;t any other rooms?" tags="" position="725,475" size="100,100">The concierge looks at you, then back at the sign as if pretending to double-check.
 
 &quot;Yup,&quot; &lt;%=!s.g?&quot;he&quot;:&quot;she&quot;%&gt; shrugs, &quot;This is a pretty small hotel. You&#39;re not the only ones trying to wait out the storm.&quot; &lt;%=!s.g?&quot;He&quot;:&quot;She&quot;%&gt; &lt;%= s.snuggled_up ? `notices Zasha&#39;s fur on your jacket` : `sniffs the air slightly`%&gt;, and quietly asks with a bemused smirk, &quot;Why don&#39;t you just stay with your &lt;%=s.g?&quot;boyfriend&quot;:&quot;girlfriend&quot;%&gt; over there? Scared &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt;&#39;ll get *hungry?*&quot;
 
@@ -1123,7 +1887,7 @@ I mean, it&#39;s not like you really have any other options?
 
 \&gt; [[Freeze to death outside?]]
 
-\&gt; [[Construct makeshift bed from travel pamphlets?]]</tw-passagedata><tw-passagedata pid="36" name="Freeze to death outside?" tags="" position="725,475" size="100,100">You glance back toward the snowy wasteland outside the warm confines of the hotel lobby. Not your best idea.
+\&gt; [[Construct makeshift bed from travel pamphlets?]]</tw-passagedata><tw-passagedata pid="37" name="Freeze to death outside?" tags="" position="850,475" size="100,100">You glance back toward the snowy wasteland outside the warm confines of the hotel lobby. Not your best idea.
 
 \&gt; [[Accept the key-card.]]
 
@@ -1131,7 +1895,7 @@ I mean, it&#39;s not like you really have any other options?
 
 \&gt; [[Construct makeshift bed from travel pamphlets?]]
 
-&lt;% } %&gt;</tw-passagedata><tw-passagedata pid="37" name="Construct makeshift bed from travel pamphlets?" tags="" position="850,475" size="100,100">Maybe if you stole enough of those little brochures, you could use them as a blanket?
+&lt;% } %&gt;</tw-passagedata><tw-passagedata pid="38" name="Construct makeshift bed from travel pamphlets?" tags="" position="975,475" size="100,100">Maybe if you stole enough of those little brochures, you could use them as a blanket?
 
 You&#39;re just gonna have to share a room with this bear.
 
@@ -1141,7 +1905,7 @@ You&#39;re just gonna have to share a room with this bear.
 
 \&gt; [[Freeze to death outside?]]
 
-&lt;% } %&gt;</tw-passagedata><tw-passagedata pid="38" name="Accept the key-card." tags="" position="975,475" size="100,100">&lt;%
+&lt;% } %&gt;</tw-passagedata><tw-passagedata pid="39" name="Accept the key-card." tags="" position="1100,475" size="100,100">&lt;%
 console.debug(`Set s.got_the_key_card from ${s.got_the_key_card} to true.`)
 s.got_the_key_card = true %&gt;
 
@@ -1157,7 +1921,7 @@ Zasha turns and heads for the hallway where the room is.
 
 \&gt; [[Ask the concierge about towing your car.]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="39" name="Ask the concierge about towing your car." tags="" position="1100,475" size="100,100">You have a brief but scintilliating conversation with the concierge about how your car is stuck in the snow four miles from here, a fact that no one really seems to care much about but you.
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="40" name="Ask the concierge about towing your car." tags="" position="1225,475" size="100,100">You have a brief but scintilliating conversation with the concierge about how your car is stuck in the snow four miles from here, a fact that no one really seems to care much about but you.
 
 &quot;Sorry pal,&quot; &lt;%=s.g?&quot;she&quot;:&quot;he&quot;%&gt; says, &quot;You could try calling someone, but everything&#39;s probably gonna be shut down &#39;til tomorrow.&quot;
 
@@ -1167,7 +1931,7 @@ You ask, Because of the snow-
 
 ...Cool, you say. You decide to deal with that problem in the morning.
 
-\&gt; [[Follow Zasha to the room.]]</tw-passagedata><tw-passagedata pid="40" name="Follow Zasha to the room." tags="checkpoint" position="1225,475" size="100,100">&lt;%if (s.snuggled_up) { %&gt;
+\&gt; [[Follow Zasha to the room.]]</tw-passagedata><tw-passagedata pid="41" name="Follow Zasha to the room." tags="checkpoint" position="100,600" size="100,100">&lt;%if (s.snuggled_up) { %&gt;
 Zasha is waiting for you.
 
 &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; extends a paw, which you take, and leads you down the hallway as if you were a tiny cub. It&#39;s a little humiliating. You&#39;re a grown adult after all, and more than capable of finding a room in this tiny hotel yourself. But at the same time, it&#39;s kind of cute? Zasha&#39;s stubby white tail is wagging.
@@ -1187,7 +1951,7 @@ The first one&#39;s a hot beverage maker. The other seems to dispense microwavea
 
 \&gt; [[Buy yourself some tea to warm up.]] *(Route 2b)*
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="41" name="Offer to buy a meal." tags="" position="100,600" size="100,100">&lt;% s.got_dinner = true; %&gt;
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="42" name="Offer to buy a meal." tags="" position="225,600" size="100,100">&lt;% s.got_dinner = true; %&gt;
 
 &lt;%
 console.debug(`Set s.snuggled_up from ${s.got_dinner} to true.`);
@@ -1203,7 +1967,7 @@ You feed your cash in, and the machine gracefully ejects a large plastic tub: Le
 
 You take the container, and follow the enormous bear into Room 7. Zasha is unabashedly wagging &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; stubby white tail, as if utterly overjoyed at your simple gesture of buying &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt; dinner.
 
-\&gt; [[Enter the hotel room.|Enter the hotel room. (Dinner Route)]]</tw-passagedata><tw-passagedata pid="42" name="Enter the hotel room. (Dinner Route)" tags="checkpoint" position="225,600" size="100,100">&lt;div.important&gt;
+\&gt; [[Enter the hotel room.|Enter the hotel room. (Dinner Route)]]</tw-passagedata><tw-passagedata pid="43" name="Enter the hotel room. (Dinner Route)" tags="checkpoint" position="350,600" size="100,100">&lt;div.important&gt;
 This route is unfinished! It&#39;s playable, but is still written as an outline and may be missing content.
 &lt;/div&gt;
 
@@ -1217,7 +1981,7 @@ As &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; drives you back to your car, yo
 
 ### The end.
 
-\&gt; [[Restart.|Title Screen]]</tw-passagedata><tw-passagedata pid="43" name="Buy yourself some tea to warm up." tags="" position="350,600" size="100,100">&lt;% s.got_tea = true; %&gt;
+\&gt; [[Restart.|Title Screen]]</tw-passagedata><tw-passagedata pid="44" name="Buy yourself some tea to warm up." tags="" position="475,600" size="100,100">&lt;% s.got_tea = true; %&gt;
 
 You ask your newfound roommate if &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; wants any tea or coffee.
 
@@ -1229,7 +1993,7 @@ You stick a dollar into the drink machine, and it produces an insulated disposab
 
 Zasha opens the door for you.
 
-\&gt; [[Enter the hotel room.|Enter the hotel room. (Tea Route)]]</tw-passagedata><tw-passagedata pid="44" name="Enter the hotel room. (Tea Route)" tags="checkpoint" position="475,600" size="100,100">You walk inside after Zasha, taking a moment to hang up your jacket. Underneath is a simple gray undershirt which politely covers up your torso. Have we mentioned today, that you&#39;re not wearing pants?
+\&gt; [[Enter the hotel room.|Enter the hotel room. (Tea Route)]]</tw-passagedata><tw-passagedata pid="45" name="Enter the hotel room. (Tea Route)" tags="checkpoint" position="600,600" size="100,100">You walk inside after Zasha, taking a moment to hang up your jacket. Underneath is a simple gray undershirt which politely covers up your torso. Have we mentioned today, that you&#39;re not wearing pants?
 
 The hotel room is nothing to write home about. There&#39;s a microwave, telephone, bed, singular.
 
@@ -1237,7 +2001,7 @@ You groan internally as you confirm your suspicions that there&#39;s only one be
 
 Zasha notices you looking at the bed, and seemingly reads your thoughts. &quot;Hm, bed is too small to share, yes? I should have considered this... Zasha will sleep on floor then.&quot;
 
-\&gt; [[Oh no, I insist.]]</tw-passagedata><tw-passagedata pid="45" name="Oh no, I insist." tags="" position="600,600" size="100,100">You tell Zasha &lt;%=-s.g?&quot;he&quot;:&quot;she&quot;%&gt; has done more than enough. You&#39;ll nab a blanket or two and sleep on the floor.
+\&gt; [[Oh no, I insist.]]</tw-passagedata><tw-passagedata pid="46" name="Oh no, I insist." tags="" position="725,600" size="100,100">You tell Zasha &lt;%=-s.g?&quot;he&quot;:&quot;she&quot;%&gt; has done more than enough. You&#39;ll nab a blanket or two and sleep on the floor.
 
 Zasha nods and gently sits down on the edge of the matress, which creaks as though it&#39;s barely supporting &lt;%-s.g?&quot;him&quot;:&quot;her&quot;%&gt;. &lt;%-s.g?&quot;He&quot;:&quot;She&quot;%&gt; pats the bedspread, offering for you sit next to &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt;. You do so. &lt;% if (s.snuggled_up) { %&gt;&lt;%-s.g?&quot;He&quot;:&quot;She&quot;%&gt; opens &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; jacket, and you snuggle up inside.&lt;% } %&gt;
 
@@ -1247,7 +2011,7 @@ You sit &lt;%- s.snuggled_up ? &#39;cozily&#39; : &#39;awkwardly&#39; %&gt; besi
 
 \&gt; [[Do you want a sip?]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="46" name="Do you want a sip?" tags="" position="725,600" size="100,100">You offer a sip of your tea to Zasha. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; hesitates at first, but eventually obliges, &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; massive claws very gently taking the cup from you, and having a little sip.
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="47" name="Do you want a sip?" tags="" position="850,600" size="100,100">You offer a sip of your tea to Zasha. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; hesitates at first, but eventually obliges, &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; massive claws very gently taking the cup from you, and having a little sip.
 
 &quot;Mm,&quot; Zasha remarks, &quot;Soothing.&quot;
 
@@ -1257,7 +2021,7 @@ Zasha delicately reaches to pass the cup back to you, but &lt;%=s.g?&quot;his&qu
 
 The cup falls, completely splattering you with a shirtful and faceful of warm tea.
 
-\&gt; [[Ow! Ow! Hot!]]</tw-passagedata><tw-passagedata pid="47" name="Ow! Ow! Hot!" tags="" position="850,600" size="100,100">You squeak with surprise, but the liquid isn&#39;t actually hot enough to be painful. Still, you&#39;re positively drenched.
+\&gt; [[Ow! Ow! Hot!]]</tw-passagedata><tw-passagedata pid="48" name="Ow! Ow! Hot!" tags="" position="975,600" size="100,100">You squeak with surprise, but the liquid isn&#39;t actually hot enough to be painful. Still, you&#39;re positively drenched.
 
 &quot;Oh no!&quot; Zasha&#39;s chestnut eyes go wide. &lt;%=s.g?&quot;His&quot;:&quot;Her&quot;%&gt; white face turns beet-red. &quot;Oh dear, Zasha is terribly sorry.&quot; &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; immediately stands, walks to the bathroom, and returns with a towel which &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; immediately begins dabbing on your dripping undershirt.
 
@@ -1265,7 +2029,7 @@ No, you say, pausing to allow the apologetic polar bear to dab your face, it was
 
 Zasha places a claw on your belly as if &lt;%=s.g?&quot;paternally&quot;:&quot;maternally&quot;%&gt; offering to remove your undershirt for you. &quot;Does Rabbit need help?&quot;
 
-\&gt; [[N-no... I-I&#39;ve got it...]]</tw-passagedata><tw-passagedata pid="48" name="N-no... I-I&#39;ve got it..." tags="" position="975,600" size="100,100">&lt;% s.previousCommand = &quot;N-n...&quot; %&gt;
+\&gt; [[N-no... I-I&#39;ve got it...]]</tw-passagedata><tw-passagedata pid="49" name="N-no... I-I&#39;ve got it..." tags="" position="1100,600" size="100,100">&lt;% s.previousCommand = &quot;N-n...&quot; %&gt;
 You blush a deep red, but stammer to produce any words. Zasha removes &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; claw. &quot;Zasha did not mean to make an inappropriate invasion of Juniper&#39;s personal space.&quot;
 
 &quot;There is no need for to be ashamed, yes? We have all seen naked creature before.&quot; &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; grabs the zipper of &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; coat. &quot;Zasha would disrobe too, if it made you more comfortable?&quot;
@@ -1284,13 +2048,13 @@ You do so. The floor is extremely cold. Zasha lies down on the bed, and falls as
 
 Zasha is snoring loudly. You try to wake &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt;, but it does not work.
 
-\&gt; [[Climb into the bed.]]</tw-passagedata><tw-passagedata pid="49" name="Climb into the bed." tags="warm" position="1100,600" size="100,100">You figure you can just discretely slip into the warm, cozy bed alongside &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt;. You do that, and sigh with relief as you pull the warm covers over your head. Zasha is turned the other way, but you can almost feel the heat radiating off of &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; back.
+\&gt; [[Climb into the bed.]]</tw-passagedata><tw-passagedata pid="50" name="Climb into the bed." tags="warm" position="1225,600" size="100,100">You figure you can just discretely slip into the warm, cozy bed alongside &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt;. You do that, and sigh with relief as you pull the warm covers over your head. Zasha is turned the other way, but you can almost feel the heat radiating off of &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; back.
 
 &quot;Snore... Snrk...&quot; You feel Zasha begin to roll over in &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; sleep. Your blood runs cold; what would &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; think if you woke &lt;%=s.g?&quot;him&quot;:&quot;him&quot;%&gt; wakes up? You begin scooting toward the edge of the bed, but suddenly, &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; grabs you and begins to snuggle you against &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; fur.
 
 &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt;&#39;s the big spoon, you&#39;re the little. *Very* little, in fact. Oh right, and the two of you are both completely nude.
 
-\&gt; [[Wow, it&#39;s really warm...]]</tw-passagedata><tw-passagedata pid="50" name="Wow, it&#39;s really warm..." tags="warm" position="1225,600" size="100,100">You blush gently, enjoying the guilty pleasure of having &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; arms wrapped around you. You&#39;re trying very hard not to develop unnatural sexual feelings for this huge &lt;%=s.g?&quot;hunk&quot;:&quot;momma&quot;%&gt;  of a bear. After all, you&#39;re a rabbit. Frankly, you should be freaked out of your mind. But all you feel is safety and warmth of Zasha&#39;s embrace. It feels almost predestined.
+\&gt; [[Wow, it&#39;s really warm...]]</tw-passagedata><tw-passagedata pid="51" name="Wow, it&#39;s really warm..." tags="warm" position="100,725" size="100,100">You blush gently, enjoying the guilty pleasure of having &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; arms wrapped around you. You&#39;re trying very hard not to develop unnatural sexual feelings for this huge &lt;%=s.g?&quot;hunk&quot;:&quot;momma&quot;%&gt;  of a bear. After all, you&#39;re a rabbit. Frankly, you should be freaked out of your mind. But all you feel is safety and warmth of Zasha&#39;s embrace. It feels almost predestined.
 
 \&gt; **Doze off...**
 
@@ -1300,13 +2064,13 @@ Then you feel Zasha&#39;s belly grumble, hard. You can feel every vibration of i
 
 You&#39;re probably overreacting. Maybe you should have bought &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt; some dinner, but it&#39;s not like &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt;&#39;s gonna-
 
-\&gt; [[Chomp.]]</tw-passagedata><tw-passagedata pid="51" name="Chomp." tags="vore" position="100,725" size="100,100">Suddenly, the sleeping Zasha opens &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; mouth wide, grips you in &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; claws, and stuffs your head inside. Oh dear. Your vision goes dark, and your ears, face, and nose go wet and slobbery.
+\&gt; [[Chomp.]]</tw-passagedata><tw-passagedata pid="52" name="Chomp." tags="vore" position="225,725" size="100,100">Suddenly, the sleeping Zasha opens &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; mouth wide, grips you in &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; claws, and stuffs your head inside. Oh dear. Your vision goes dark, and your ears, face, and nose go wet and slobbery.
 
 Your parents warned you about &quot;sleep swallowing&quot; (officially referred to as *predatory somnambulism*—a common cause for accidental digestions). But you always assumed they just made it up to scare you.
 
 You&#39;re... Actually inside a predator&#39;s mouth. What will you do?
 
-\&gt; [[Cry for help!]]</tw-passagedata><tw-passagedata pid="52" name="Cry for help!" tags="vore" position="225,725" size="100,100">You yell out, trying to wake Zasha up, but your voice is muffled by the bear&#39;s cheeks. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; simply keeps sleep-swallowing you until you&#39;re deep inside &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; belly. It immediately beings to digest you. In utter shock, you fall unconscious.
+\&gt; [[Cry for help!]]</tw-passagedata><tw-passagedata pid="53" name="Cry for help!" tags="vore" position="350,725" size="100,100">You yell out, trying to wake Zasha up, but your voice is muffled by the bear&#39;s cheeks. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; simply keeps sleep-swallowing you until you&#39;re deep inside &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; belly. It immediately beings to digest you. In utter shock, you fall unconscious.
 
 &quot;Mmmm...&quot;
 
@@ -1314,13 +2078,13 @@ You&#39;re... Actually inside a predator&#39;s mouth. What will you do?
 
 \&gt; [[Epilogue.|Ending: Digestion regret]]
 
-\&gt; &lt;a0 onclick=&quot;setup.restart()&quot;&gt;Restart.&lt;/a&gt;</tw-passagedata><tw-passagedata pid="53" name="Jump down their throat." tags="warm" position="350,725" size="100,100">*CW: Oral Vore. Saliva. Fatal digestion.*
+\&gt; &lt;a0 onclick=&quot;setup.restart()&quot;&gt;Restart.&lt;/a&gt;</tw-passagedata><tw-passagedata pid="54" name="Jump down their throat." tags="warm" position="475,725" size="100,100">*CW: Oral Vore. Saliva. Fatal digestion.*
 
 Something strange takes ahold of you, and at that moment, you cannot bear being outside this huge, sexy predator&#39;s maw for one second longer.
 
 Through the car window, you grab hold of &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; lips, pull &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; jaw open, and attempt to force your face against &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; hot, slobbery tongue, so you can wriggle down &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; esophagus and become part of that warm, pudgy belly.
 
-\&gt; [[Continue.|Jump down their throat II.]]</tw-passagedata><tw-passagedata pid="54" name="Jump down their throat II." tags="cold" position="475,725" size="100,100">&quot;Hrk!&quot; The bear suddenly gags, and grabs you by the scruff of your neck to yank you out of &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; mouth, coughing. As you awkardly wipe the spittle from your fur, the polar bear looks at you bewildered. &quot;Kafkaf kaf! Ack! Wh-what?&quot;
+\&gt; [[Continue.|Jump down their throat II.]]</tw-passagedata><tw-passagedata pid="55" name="Jump down their throat II." tags="cold" position="600,725" size="100,100">&quot;Hrk!&quot; The bear suddenly gags, and grabs you by the scruff of your neck to yank you out of &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; mouth, coughing. As you awkardly wipe the spittle from your fur, the polar bear looks at you bewildered. &quot;Kafkaf kaf! Ack! Wh-what?&quot;
 
 Sorry!! you say immediately, you&#39;re not sure what came over you there, that was completely-
 
@@ -1328,7 +2092,7 @@ The polar bear interrupts, looking you straight in the eyes with furrowed brows 
 
 \&gt; [[Oh, yes please!|Oh, yes please!]]
 
-\&gt; [[N-no, of course not!]]</tw-passagedata><tw-passagedata pid="55" name="N-no, of course not!" tags="cold" position="600,725" size="100,100">You take a moment to think about it. *Do* you want to be eaten?
+\&gt; [[N-no, of course not!]]</tw-passagedata><tw-passagedata pid="56" name="N-no, of course not!" tags="cold" position="725,725" size="100,100">You take a moment to think about it. *Do* you want to be eaten?
 
 No, no! Of course you don&#39;t. Why would you? That would be insane, right? Who would ever *want* that to happen to them?
 
@@ -1344,11 +2108,11 @@ Zasha wets &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; mouth and replies, &qu
 
 \&gt; [[P-please swallow me whole!|Oh, yes please!]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="56" name="No, I&#39;m absolutely sure." tags="cold" position="725,725" size="100,100">You shake your head vehemently no. You&#39;re not sure what came over you just now. But you don&#39;t want to be eaten.
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="57" name="No, I&#39;m absolutely sure." tags="cold" position="850,725" size="100,100">You shake your head vehemently no. You&#39;re not sure what came over you just now. But you don&#39;t want to be eaten.
 
 &quot;Okay then,&quot; the bear nods, clears &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; throat. &quot;So, er, car is broken down? You require assistance?&quot;
 
-\&gt; [[Yes, actually...|Yes, I do need help actually...]]</tw-passagedata><tw-passagedata pid="57" name="Oh, yes please!" tags="" position="850,725" size="100,100">Your ears stand straight up with excitement. Unlike most bunnies, you&#39;ve always been &quot;curious&quot; as to what being swallowed is like, but never really admitted it to yourself.
+\&gt; [[Yes, actually...|Yes, I do need help actually...]]</tw-passagedata><tw-passagedata pid="58" name="Oh, yes please!" tags="" position="975,725" size="100,100">Your ears stand straight up with excitement. Unlike most bunnies, you&#39;ve always been &quot;curious&quot; as to what being swallowed is like, but never really admitted it to yourself.
 
 You say that you would love to be eaten, um, but you understand if &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt;&#39;s not interested, of course.
 
@@ -1360,7 +2124,7 @@ Yes, you say. You want to be wrapped up in warmth. You want to feed &lt;%=s.g?&q
 
 Zasha narrows &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; eyes. &quot;Rabbit is absolutely sure?&quot; &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; reiterates, as if trying to make sure &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; has not misunderstood or misinterpreted you.
 
-\&gt; [[Yes, a thousand times yes!!]]</tw-passagedata><tw-passagedata pid="58" name="Yes, a thousand times yes!!" tags="warm" position="975,725" size="100,100">Yes, yes, you say. You&#39;re almost sweating through your shirt with anticipation. You wonder if Zasha can smell it.
+\&gt; [[Yes, a thousand times yes!!]]</tw-passagedata><tw-passagedata pid="59" name="Yes, a thousand times yes!!" tags="warm" position="1100,725" size="100,100">Yes, yes, you say. You&#39;re almost sweating through your shirt with anticipation. You wonder if Zasha can smell it.
 
 Zasha considers. &quot;This rabbit is a strange one. However, Zasha is hungry, and thought of swallowing has brought about some... urges. Zasha will oblige with Rabbit&#39;s request.&quot;
 
@@ -1374,7 +2138,7 @@ You spend a few seconds merely gazing in awe at your destination. Zasha briefly 
 
 What will you do?
 
-\&gt; [[Climb inside &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; mouth.|Climb inside Zasha&#39;s mouth.]]</tw-passagedata><tw-passagedata pid="59" name="Climb inside Zasha&#39;s mouth." tags="vore checkpoint" position="1100,725" size="100,100">You eagerly stick one paw, then the other, into the bear&#39;s awaiting maw. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; guides them into &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; throat, and swallows them effortlessly. A second gulp tugs at your arms, and pulls you face-first against &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; slobbery tongue, which quickly gets to work tasting your face, and coating your fur in &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; saliva.
+\&gt; [[Climb inside &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; mouth.|Climb inside Zasha&#39;s mouth.]]</tw-passagedata><tw-passagedata pid="60" name="Climb inside Zasha&#39;s mouth." tags="vore checkpoint" position="1225,725" size="100,100">You eagerly stick one paw, then the other, into the bear&#39;s awaiting maw. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; guides them into &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; throat, and swallows them effortlessly. A second gulp tugs at your arms, and pulls you face-first against &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; slobbery tongue, which quickly gets to work tasting your face, and coating your fur in &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; saliva.
 
 Experimentally, you try to pull one of your paws back out, but it&#39;s being gripped tightly by Zasha&#39;s esophagus. Looks like no turning back now.
 
@@ -1382,7 +2146,7 @@ Zasha&#39;s breath is warm and humid as it blasts your face. Surprisingly, it do
 
 You stare in amazement as your face approaches the dark warmth of &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; gullet.
 
-\&gt; [[Th-thank you...]]</tw-passagedata><tw-passagedata pid="60" name="Th-thank you..." tags="vore" position="1225,725" size="100,100">You murmur thanks at Zasha, unsure if &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; can hear you.
+\&gt; [[Th-thank you...]]</tw-passagedata><tw-passagedata pid="61" name="Th-thank you..." tags="vore" position="100,850" size="100,100">You murmur thanks at Zasha, unsure if &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; can hear you.
 
 The bear nods and swallows, squeezing your head and ears into the tight wet tube of &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; esophagus. Powerful arms wrap around your middle, and lift you into the air so &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; can take in your body more easily. Zasha licks and slobbers at your torso, not even bothering to remove your clothes.
 
@@ -1394,7 +2158,7 @@ You&#39;re officially food now, and it feels *amazing*.
 
 \&gt; [[Enter stomach.|Enter stomach. (Vore Route 1)]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="61" name="Enter stomach. (Vore Route 1)" tags="vore" position="100,850" size="100,100">It&#39;s so warm inside the bear&#39;s gullet. Not surprising, considering all &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; layers of fat. Your small body sails over Zasha&#39;s lips and effortlessly slides down into &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; belly. It&#39;s hard to breathe inside &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; throat, but that changes soon enough.
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="62" name="Enter stomach. (Vore Route 1)" tags="vore" position="225,850" size="100,100">It&#39;s so warm inside the bear&#39;s gullet. Not surprising, considering all &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; layers of fat. Your small body sails over Zasha&#39;s lips and effortlessly slides down into &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; belly. It&#39;s hard to breathe inside &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; throat, but that changes soon enough.
 
 With a *shlorp*, you emerge in the clenching confines of Zasha&#39;s stomach. Your fur is immediately coated in clear slimy enzymes. Moving around is difficult in such a small space, but you eventually manage to remove your shirt and jacket, which have been thoroughly soiled. You are now a completely nude rabbit, inside the dank tummy of a predator. It&#39;s everything you imagined.
 
@@ -1402,7 +2166,7 @@ Moments later, you feel the pressure of a huge paw feeling for your presence thr
 
 &quot;Juniper is doing okay in there?&quot; Zasha asks, &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; voice booming from every direction.
 
-\&gt; [[Yes, wonderful!]]</tw-passagedata><tw-passagedata pid="62" name="Yes, wonderful!" tags="vore" position="225,850" size="100,100">You shout approvingly at the top of your little rabbit lungs, attempting to make your voice heard through the thick insulation surrounding you from all sides. As you close your mouth, you taste a little bit of Zasha&#39;s saliva on your lips.
+\&gt; [[Yes, wonderful!]]</tw-passagedata><tw-passagedata pid="63" name="Yes, wonderful!" tags="vore" position="350,850" size="100,100">You shout approvingly at the top of your little rabbit lungs, attempting to make your voice heard through the thick insulation surrounding you from all sides. As you close your mouth, you taste a little bit of Zasha&#39;s saliva on your lips.
 
 Zazha opens &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; mouth to reply, but is interrupted by a deep, guttural belch. Your body must&#39;ve displaced a lot of air. As the burp escapes Zasha&#39;s lips, &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; walls get a little bit tighter around you. &quot;That is, *urp*, good to hear,&quot; &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; says, &quot;Juniper made for delicious meal.&quot; The bear affectionately rubs &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; belly and says, &quot;I am on way to hotel nearby. You will come along with Zasha for night? Return to car in morning?&quot;
 
@@ -1418,7 +2182,7 @@ Zasha pulls &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; head out of your car 
 
 \&gt; [[Get comfy.]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="63" name="Get comfy." tags="vore" position="350,850" size="100,100">&lt;div.important&gt;
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="64" name="Get comfy." tags="vore" position="475,850" size="100,100">&lt;div.important&gt;
 This route is unfinished! It&#39;s playable, but is still written as an outline and may be missing content.
 &lt;/div&gt;
 
@@ -1448,7 +2212,7 @@ There&#39;d probably be a description of the passing scenery here, if you weren&
 
 You hear Zasha stop the car. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; enters, hefting &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; huge gut inside. The concierge gives &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt; a weird look, but says nothing.
 
-\&gt; [[Enter the hotel room. (Willing Oral Route)]]</tw-passagedata><tw-passagedata pid="64" name="Enter the hotel room. (Willing Oral Route)" tags="vore checkpoint" position="475,850" size="100,100">**\&gt; Can I come out now?**
+\&gt; [[Enter the hotel room. (Willing Oral Route)]]</tw-passagedata><tw-passagedata pid="65" name="Enter the hotel room. (Willing Oral Route)" tags="vore checkpoint" position="600,850" size="100,100">**\&gt; Can I come out now?**
 
 Zasha, exhausted, replies &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt;&#39;ll let you out tomorrow morning. What!? You&#39;ll be going through &quot;the natural way.&quot; More gentle on stomach, says Zasha. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; seems to be teasing you. &quot;Besides, hotel is much too cold for rabbit,&quot; &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; says smirking, &quot;Zasha must keep warm.&quot;
 
@@ -1460,7 +2224,7 @@ A few hours later, you awake to realize that Zasha is still sleeping, and &lt;%=
 
 \&gt; [[Wake &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt; up.|Wake Zasha up.]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="65" name="Wake Zasha up." tags="" position="600,850" size="100,100">You kick and yell, but it doesn&#39;t take. Your predator snores and turns onto &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; belly.
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="66" name="Wake Zasha up." tags="" position="725,850" size="100,100">You kick and yell, but it doesn&#39;t take. Your predator snores and turns onto &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; belly.
 
 &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; only murmurs in &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; sleep, &quot;Zasha... will let rabbit out... tomorrow.&quot;
 
@@ -1470,13 +2234,13 @@ A few hours later, you awake to realize that Zasha is still sleeping, and &lt;%=
 
 \&gt; [[Thrash and struggle for your life!]] *(Route 2b: Non-fatal)*
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="66" name="Await warm and gurgly death." tags="vore" position="725,850" size="100,100">// TODO: Willing digestion ending.
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="67" name="Await warm and gurgly death." tags="vore" position="850,850" size="100,100">// TODO: Willing digestion ending.
 
 You resign to your fate of being accidentally digested, and slowly dissolve in Zasha&#39;s stomach.
 
 \&gt; [[The next day...|Ending: Digestion regret]] *(Post-vore scat)*
 
-\&gt; &lt;a0 onclick=&quot;setup.restart()&quot;&gt;Restart.&lt;/a&gt;</tw-passagedata><tw-passagedata pid="67" name="Ending: Digestion regret" tags="" position="850,850" size="100,100">*CW: Post-Vore scat.*
+\&gt; &lt;a0 onclick=&quot;setup.restart()&quot;&gt;Restart.&lt;/a&gt;</tw-passagedata><tw-passagedata pid="68" name="Ending: Digestion regret" tags="" position="975,850" size="100,100">*CW: Post-Vore scat.*
 
 The next day, Zasha wakes up with a huge belly full of digested rabbit. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; is quite upset over this, having failed to protect an innocent creature, but is gradually corrupted by the carnal feelings of power which predation gives &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt;. It&#39;s not the first time, and &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; stoically concludes there was nothing &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; could have done to stop it.
 
@@ -1484,7 +2248,7 @@ You and your belongings are discretely flushed in the hotel toilet as a slurry o
 
 ### The End.
 
-\&gt; &lt;a0 onclick=&quot;setup.restart()&quot;&gt;Restart.&lt;/a&gt;</tw-passagedata><tw-passagedata pid="68" name="Thrash and struggle for your life!" tags="" position="975,850" size="100,100">*CW: Regurgitation.*
+\&gt; &lt;a0 onclick=&quot;setup.restart()&quot;&gt;Restart.&lt;/a&gt;</tw-passagedata><tw-passagedata pid="69" name="Thrash and struggle for your life!" tags="" position="1100,850" size="100,100">*CW: Regurgitation.*
 
 You expend all of your effort, and manage to wake Zasha from &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; slumber, who realizes that &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; fell asleep. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; immediately rushes to the bathroom, and horks you up into the tub. The authors don&#39;t have a vomit fetish, so they leave it up to the imagination.
 
@@ -1496,19 +2260,19 @@ You take a long shower, and you think about the choices that lead you to this br
 
 \&gt; [[Just go to bed.]] *(Unlewd ending)*
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="69" name="Actually, th-that was kind of hot." tags="" position="1100,850" size="100,100">You stop &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt;, and say that being nearly digested made you so unbelievably horny. Zasha is bemused, but reciprocates.
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="70" name="Actually, th-that was kind of hot." tags="" position="1225,850" size="100,100">You stop &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt;, and say that being nearly digested made you so unbelievably horny. Zasha is bemused, but reciprocates.
 
 &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; strips off &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; jacket, and invites you back into bed.
 
 // TODO: Sex scene. Might require multiple passages per genital configurations.
 
-\&gt; [[The next day...|Ending: Morning after]]</tw-passagedata><tw-passagedata pid="70" name="Just go to bed." tags="" position="1225,850" size="100,100">You walk past Zasha, and sleep on the floor, still coping with the trauma of almost being digested.
+\&gt; [[The next day...|Ending: Morning after]]</tw-passagedata><tw-passagedata pid="71" name="Just go to bed." tags="" position="100,975" size="100,100">You walk past Zasha, and sleep on the floor, still coping with the trauma of almost being digested.
 
 The next day, Zasha wordlessly drives you back to your car.
 Your cell is working again, and the snow is gone.
 You try to talk, but can&#39;t think of anything to say. You call a towing company, and get your car fixed. By the end of the day, you&#39;re moving on.
 
-\&gt; &lt;a0 onclick=&quot;setup.restart()&quot;&gt;Restart.&lt;/a&gt;</tw-passagedata><tw-passagedata pid="71" name="Ending: Somewhat awkward" tags="" position="100,975" size="100,100">\&gt; &lt;a0 onclick=&quot;setup.restart()&quot;&gt;Restart.&lt;/a&gt;</tw-passagedata><tw-passagedata pid="72" name="Press for more information." tags="cold" position="225,975" size="100,100">*CW: Anal Vore. Masturbation. Rimming.*
+\&gt; &lt;a0 onclick=&quot;setup.restart()&quot;&gt;Restart.&lt;/a&gt;</tw-passagedata><tw-passagedata pid="72" name="Ending: Somewhat awkward" tags="" position="225,975" size="100,100">\&gt; &lt;a0 onclick=&quot;setup.restart()&quot;&gt;Restart.&lt;/a&gt;</tw-passagedata><tw-passagedata pid="73" name="Press for more information." tags="cold" position="350,975" size="100,100">*CW: Anal Vore. Masturbation. Rimming.*
 
 You can clearly tell that Zasha is lying about &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; job. You tell &lt;%=s.g?&quot;him&quot;:&quot;her&quot;%&gt; so outright. What does &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; *really* do for a living?
 
@@ -1526,7 +2290,7 @@ Zasha shifts uncomfortably. &quot;Films of... er... sexual swallowing,&quot; &lt
 
 \&gt; [[Oh. *Ooooooh.*|Oh. Ooooooh.]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="73" name="Oh. Ooooooh." tags="" position="350,975" size="100,100">&lt;%
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="74" name="Oh. Ooooooh." tags="" position="475,975" size="100,100">&lt;%
 console.debug(`Set s.knows_zasha_does_vorno from ${s.knows_zasha_does_vorno} to true.`)
 s.knows_zasha_does_vorno = true; %&gt;
 
@@ -1540,7 +2304,7 @@ You&#39;re ashamed to think that you&#39;ve actually seen quite a lot of those f
 
 \&gt; [[S-so, you eat people for a living?]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="74" name="S-so, you eat people for a living?" tags="cold" position="475,975" size="100,100">&quot;Yes,&quot; Zasha says, struggling to make eye-contact, &quot;but only with strict consent, of course!&quot;
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="75" name="S-so, you eat people for a living?" tags="cold" position="600,975" size="100,100">&quot;Yes,&quot; Zasha says, struggling to make eye-contact, &quot;but only with strict consent, of course!&quot;
 
 A-and no digestion, right?
 
@@ -1554,7 +2318,7 @@ Your face flushes. *Usually*? &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt;&#39;
 
 \&gt; [[C-cool! A-anyways...]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="75" name="C-cool! A-anyways..." tags="cold" position="600,975" size="100,100">Now that you have this unpleasant knowledge haunting the back of your mind, you decide to do the normal thing, and change the subject as quickly as possible.
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="76" name="C-cool! A-anyways..." tags="cold" position="725,975" size="100,100">Now that you have this unpleasant knowledge haunting the back of your mind, you decide to do the normal thing, and change the subject as quickly as possible.
 
 S-some weather, huh?
 
@@ -1562,7 +2326,7 @@ Zasha says, &quot;I assure you rabbit, Zasha eats no one without their permissio
 
 You nod. You&#39;d rather forget all about Zasha&#39;s innate capacity to swallow and wholly digest people your size. The two of you ride together in silence for a minute or so. &lt;%= story.render(&quot;Arrive at the hotel.&quot;)%&gt;
 
-&lt;div-&gt;[[Arrive at the hotel.]]&lt;/div&gt;</tw-passagedata><tw-passagedata pid="76" name="...Can you eat me?" tags="cold" position="725,975" size="100,100">Your libido gets the better of you. You stammer out a request which feels extremely weird to say out loud. You ask the bear if &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; can eat you.
+&lt;div-&gt;[[Arrive at the hotel.]]&lt;/div&gt;</tw-passagedata><tw-passagedata pid="77" name="...Can you eat me?" tags="cold" position="850,975" size="100,100">Your libido gets the better of you. You stammer out a request which feels extremely weird to say out loud. You ask the bear if &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; can eat you.
 
 Zasha seems taken aback. &quot;This does not... scare you? Usually Zasha&#39;s partners, er, prey, are quite nervous.&quot;
 
@@ -1574,7 +2338,7 @@ There are *other* options?
 
 Zasha smiles uneasily. &quot;Yes, sometimes Zasha is involved in... *specialty* scenes. Taking prey into private parts, or um, anal hole...&quot;
 
-\&gt; [[Anal? You can do that?]]</tw-passagedata><tw-passagedata pid="77" name="Anal? You can do that?" tags="cold" position="850,975" size="100,100">You&#39;re somewhat disbelieving of this. You knew some predators were capable of &quot;anal vore&quot;, but you learned in Biology that it was a very rare skill.
+\&gt; [[Anal? You can do that?]]</tw-passagedata><tw-passagedata pid="78" name="Anal? You can do that?" tags="cold" position="975,975" size="100,100">You&#39;re somewhat disbelieving of this. You knew some predators were capable of &quot;anal vore&quot;, but you learned in Biology that it was a very rare skill.
 
 &quot;Yes,&quot; Zasha replies, &quot;Zasha is big bear, yes. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; can consume prey through this hole. Can even squeeze through intestines and into stomach to be, er, regurgitated.&quot;
 
@@ -1586,7 +2350,7 @@ You listen intently, equal parts disgusted, terrified, and amazed.
 
 \&gt; [[Would you mind... um... showing me?]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="78" name="Would you mind... um... showing me?" tags="cold" position="975,975" size="100,100">Zasha doesn&#39;t take &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; eyes off the road, but you can see a mischievous smirk growing on &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; face.
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="79" name="Would you mind... um... showing me?" tags="cold" position="1100,975" size="100,100">Zasha doesn&#39;t take &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; eyes off the road, but you can see a mischievous smirk growing on &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; face.
 
 &quot;Yes,&quot; &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; replies &quot;Zasha can do this. Wait until hotel, okay? We are almost there.&quot;
 
@@ -1600,7 +2364,7 @@ You&#39;re about to complain, when Zasha suddenly scoops you into &lt;%=s.g?&quo
 
 \&gt; [[Wh-what gives?]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="79" name="Wh-what gives?" tags="" position="1100,975" size="100,100">Zasha snuggles you close to &lt;%=s.g?&quot;his chest&quot;:&quot;her bosom&quot;%&gt;, and smiles. &quot;Rabbit is Zasha&#39;s toy now. Zasha does not like cold toy.&quot;
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="80" name="Wh-what gives?" tags="" position="1225,975" size="100,100">Zasha snuggles you close to &lt;%=s.g?&quot;his chest&quot;:&quot;her bosom&quot;%&gt;, and smiles. &quot;Rabbit is Zasha&#39;s toy now. Zasha does not like cold toy.&quot;
 
 You blush, but accept &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; affectionate teasing as &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; carries you into the building, setting you down in the lobby while &lt;%s.g?&quot;he&quot;:&quot;she&quot;%&gt; talks to the concierge to get a room key. As a rabbit, you&#39;re somewhat used to people treating you like a child, but Zasha is treating you like *&lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt;* child, a child &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; intends to consume anally. Freud would have a field day with this.
 
@@ -1612,7 +2376,7 @@ From the front desk, the concierge winks at you and gives a thumbs up. You smile
 
 \&gt; [[Enter the hotel room.|Enter the hotel room. (Anal Vore Route)]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="80" name="Enter the hotel room. (Anal Vore Route)" tags="checkpoint" position="1225,975" size="100,100">&lt;div.important&gt;
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="81" name="Enter the hotel room. (Anal Vore Route)" tags="checkpoint" position="100,1100" size="100,100">&lt;div.important&gt;
 This route is unfinished! It&#39;s playable, but is still written as an outline and may be missing content.
 &lt;/div&gt;
 
@@ -1641,7 +2405,7 @@ onclick=&quot;story.state.safeWord = &#39;Idiosyncratic&#39;; story.state.weirdS
 
 &lt;div-&gt;
 \&gt; [[The safe word is...]]
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="81" name="The safe word is..." tags="" position="100,1100" size="100,100">&lt;% s.safeWord = s.safeWord || &quot;листва&quot;; %&gt;
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="82" name="The safe word is..." tags="" position="225,1100" size="100,100">&lt;% s.safeWord = s.safeWord || &quot;листва&quot;; %&gt;
 
 &quot;&lt;%-s.safeWord%&gt;&lt;%-s.weirdSafeWord ? &#39;?&#39; : &#39;,&#39; %&gt;&quot; Zasha repeats, &quot;&lt;%-either(&quot;Okay&quot;, &quot;Alright&quot;, &quot;Yes&quot;)%&gt;. Say this, and Zasha will stop what &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; is doing and help Rabbit out.&quot;
 
@@ -1657,7 +2421,7 @@ W-wow, you two are really doing this.
 
 \&gt; [[Use your tongue.]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="82" name="Lube up Zasha&#39;s hole." tags="" position="225,1100" size="100,100">You squirt a load of &quot;Strawberry Lik-n-Stik Edible Lube&quot; onto your cupped paw, and delicately smear it all over Zasha&#39;s asshole.
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="83" name="Lube up Zasha&#39;s hole." tags="" position="350,1100" size="100,100">You squirt a load of &quot;Strawberry Lik-n-Stik Edible Lube&quot; onto your cupped paw, and delicately smear it all over Zasha&#39;s asshole.
 
 &quot;Rabbit will need to get it deeper...&quot; &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; teases.
 
@@ -1669,36 +2433,36 @@ You catch on to &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; game, and slip yo
 
 Zasha&#39;s furry tail is sticking straight up. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; says, &quot;Well rabbit, this is it. Take deep breath now, yes?&quot;
 
-\&gt; [[Press your face into &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; asshole.|Press your face into Zasha&#39;s asshole.]]</tw-passagedata><tw-passagedata pid="83" name="Use your tongue." tags="" position="350,1100" size="100,100">As you hold Zasha&#39;s cheeks apart and gaze into the hole betwixt, you can&#39;t help yourself. You lean in begin to swirl your tongue around &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; huge puckered asshole. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; immediately responds with a moan, &lt;%=s.g?&quot;his cock twitching slightly between his legs.&quot;:&quot;her asshole clenching and releasing.&quot;%&gt;. &quot;Rabbit could not help itself, yes? Mm, this is not bad...&quot; You keep going for a little while, inhaling deep lungfuls of bear musk.
+\&gt; [[Press your face into &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; asshole.|Press your face into Zasha&#39;s asshole.]]</tw-passagedata><tw-passagedata pid="84" name="Use your tongue." tags="" position="475,1100" size="100,100">As you hold Zasha&#39;s cheeks apart and gaze into the hole betwixt, you can&#39;t help yourself. You lean in begin to swirl your tongue around &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; huge puckered asshole. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; immediately responds with a moan, &lt;%=s.g?&quot;his cock twitching slightly between his legs.&quot;:&quot;her asshole clenching and releasing.&quot;%&gt;. &quot;Rabbit could not help itself, yes? Mm, this is not bad...&quot; You keep going for a little while, inhaling deep lungfuls of bear musk.
 
 Finally, Zasha says, &quot;Rabbit *will* need to use more lube to get inside of Zasha.&quot;
 
-\&gt; [[Lube up &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; hole.|Lube up Zasha&#39;s hole.]]</tw-passagedata><tw-passagedata pid="84" name="Press your face into Zasha&#39;s asshole." tags="vore" position="475,1100" size="100,100">&lt;% s.safeWord = s.safeWord || &quot;листва&quot;; %&gt;
+\&gt; [[Lube up &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; hole.|Lube up Zasha&#39;s hole.]]</tw-passagedata><tw-passagedata pid="85" name="Press your face into Zasha&#39;s asshole." tags="vore" position="600,1100" size="100,100">&lt;% s.safeWord = s.safeWord || &quot;листва&quot;; %&gt;
 
 You shlorp your nose into Zasha&#39;s thick ass. It&#39;s dripping with sweat as you fold your ears behind your head, and press forward.. The sensation of forcing your face into that tight ring, and having it stretch to accept you, is utterly surreal.
 
-\&gt; [[Breathe deep.]]</tw-passagedata><tw-passagedata pid="85" name="Breathe deep." tags="" position="600,1100" size="100,100">The smell is intoxicating, a powerful musk, mixed with strawberries. You travel past rectum, and into &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; colon. Your ears lead the way as you keep travelling deeper. It&#39;s magical.
+\&gt; [[Breathe deep.]]</tw-passagedata><tw-passagedata pid="86" name="Breathe deep." tags="" position="725,1100" size="100,100">The smell is intoxicating, a powerful musk, mixed with strawberries. You travel past rectum, and into &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; colon. Your ears lead the way as you keep travelling deeper. It&#39;s magical.
 
-\&gt; [[Is this too deep?]]</tw-passagedata><tw-passagedata pid="86" name="Is this too deep?" tags="" position="725,1100" size="100,100">Zasha moans and urges you deeper. &lt;%=s.g?&quot;His&quot;:&quot;Her&quot;%&gt; paws delicately guide your bulge through &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; intestines.
+\&gt; [[Is this too deep?]]</tw-passagedata><tw-passagedata pid="87" name="Is this too deep?" tags="" position="850,1100" size="100,100">Zasha moans and urges you deeper. &lt;%=s.g?&quot;His&quot;:&quot;Her&quot;%&gt; paws delicately guide your bulge through &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; intestines.
 
 It starts to become a little tight in here, and you find yourself struggling to breathe.
 
-\&gt; [[&lt;%-s.safeWord%&gt;! &lt;%-s.safeWord%&gt;!!|Safeword! Safeword!!]]</tw-passagedata><tw-passagedata pid="87" name="Safeword! Safeword!!" tags="" position="850,1100" size="100,100">You&#39;re losing oxygen. You wiggle your tightly bound feet with displeasure, and call out for help. Your voice is muffled, but Zasha seems to only push you deeper! You can hear &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; heart pounding around you now.
+\&gt; [[&lt;%-s.safeWord%&gt;! &lt;%-s.safeWord%&gt;!!|Safeword! Safeword!!]]</tw-passagedata><tw-passagedata pid="88" name="Safeword! Safeword!!" tags="" position="975,1100" size="100,100">You&#39;re losing oxygen. You wiggle your tightly bound feet with displeasure, and call out for help. Your voice is muffled, but Zasha seems to only push you deeper! You can hear &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; heart pounding around you now.
 
-\&gt; [[&lt;%-s.safeWord.slice(0, 4)%&gt;...|Safe...]]</tw-passagedata><tw-passagedata pid="88" name="Safe..." tags="" position="975,1100" size="100,100">You feel yourself become woozy. Zasha&#39;s upper intestine pulsates indifferently around you. You feel consciousness... beginning... to...
+\&gt; [[&lt;%-s.safeWord.slice(0, 4)%&gt;...|Safe...]]</tw-passagedata><tw-passagedata pid="89" name="Safe..." tags="" position="1100,1100" size="100,100">You feel yourself become woozy. Zasha&#39;s upper intestine pulsates indifferently around you. You feel consciousness... beginning... to...
 
 *GASP*. Your head pokes through a sphincter into Zasha&#39;s stomach, a dark dank cavern.
 
 You feel your feet disappear beneath Zasha&#39;s tail. Zasha sits down, and delicately caresses your outline. &quot;I-is rabbit okay?&quot; Zasha swallows several anti-digestion tablets, and they plop and fizz into the surrounding stomach juices.
 
-\&gt; [[Y-yeah. I&#39;m okay.]]</tw-passagedata><tw-passagedata pid="89" name="Y-yeah. I&#39;m okay." tags="" position="1100,1100" size="100,100">You&#39;re fine, you say. Actually, it made you feel kind of... alive. You look down at your lower half, now also inside the stomach. *Very* alive.
+\&gt; [[Y-yeah. I&#39;m okay.]]</tw-passagedata><tw-passagedata pid="90" name="Y-yeah. I&#39;m okay." tags="" position="1225,1100" size="100,100">You&#39;re fine, you say. Actually, it made you feel kind of... alive. You look down at your lower half, now also inside the stomach. *Very* alive.
 
 Zasha, too, is feeling a great deal of physical pleasure. Both of your libidos at their peak from the undeniably sexual experience of carnivorous satisfaction, you both (optionally) masturbate.
 
 // TODO: jerk-off descriptions
 // Might need separate passages per gender.
 
-\&gt; [[Yess!]]</tw-passagedata><tw-passagedata pid="90" name="Yess!" tags="" position="1225,1100" size="100,100">// TODO: Orgasm description.
+\&gt; [[Yess!]]</tw-passagedata><tw-passagedata pid="91" name="Yess!" tags="" position="100,1225" size="100,100">// TODO: Orgasm description.
 
 Satisfied with the orgasm, the two of you fall asleep.
 
@@ -1706,13 +2470,13 @@ Satisfied with the orgasm, the two of you fall asleep.
 
 \&gt; [[The next day...|Ending: Morning after]]
 
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="91" name="Ending: Morning after" tags="" position="100,1225" size="100,100">You wake up in the morning, being squeezed out of the bear&#39;s asshole, and into a bathtub. Yuck.
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="92" name="Ending: Morning after" tags="" position="225,1225" size="100,100">You wake up in the morning, being squeezed out of the bear&#39;s asshole, and into a bathtub. Yuck.
 
 You gratefully return to your car, unable to look Zasha in the eye after spending multiple hours in &lt;%=s.g?&quot;his&quot;:&quot;her&quot;%&gt; large intestine. &lt;%=s.g?&quot;He&quot;:&quot;She&quot;%&gt; seems a little bashful about almost killing you, but the two of you are on good terms. Zasha tows your car to a repair shop, and waves you off. As &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; leaves, &lt;%=s.g?&quot;he&quot;:&quot;she&quot;%&gt; writes down an email address, and winks, asking if you want to do it again some time. A shiver goes down your spine.
 
 ### The end.
 
-\&gt; &lt;a0 onclick=&quot;setup.restart()&quot;&gt;Restart.&lt;/a&gt;</tw-passagedata><tw-passagedata pid="92" name="Title Screen" tags="no_heading start" position="225,1225" size="100,100">&lt;style&gt;
+\&gt; &lt;a0 onclick=&quot;setup.restart()&quot;&gt;Restart.&lt;/a&gt;</tw-passagedata><tw-passagedata pid="93" name="Title Screen" tags="no_heading start" position="350,1225" size="100,100">&lt;style&gt;
 tw-passage &gt; * {
   margin-bottom: 2rem;
 }
@@ -1736,7 +2500,7 @@ tw-passage &gt; * {
 
 &lt;div&gt;
 &lt;%= story.render(&quot;Checkpoints&quot;) %&gt;
-&lt;/div&gt;</tw-passagedata><tw-passagedata pid="93" name="Checkpoints" tags="" position="350,1225" size="100,100">&lt;% let seen = storyFlags.get().seenPassages;
+&lt;/div&gt;</tw-passagedata><tw-passagedata pid="94" name="Checkpoints" tags="" position="475,1225" size="100,100">&lt;% let seen = storyFlags.get().seenPassages;
 let checkpoints = story.passages
     .filter(p =&gt; p &amp;&amp; p.tags.includes(&quot;checkpoint&quot;))
 	&lt;!-- .sort((p1, p2) =&gt; seen.indexOf(p1.id) -  seen.indexOf(p2.id)); --&gt;
@@ -1760,11 +2524,11 @@ let unseenCount = checkpoints.filter(p =&gt; !seen.includes(p.id)).length;
 
 &lt;% } else { %&gt;
 &lt;%= story.render(&quot;Content warning&quot;) %&gt;&lt;/div&gt;
-&lt;% } %&gt;</tw-passagedata><tw-passagedata pid="94" name="Content warning" tags="" position="475,1225" size="100,100">### ⚠️ CONTENT WARNING ⚠️
+&lt;% } %&gt;</tw-passagedata><tw-passagedata pid="95" name="Content warning" tags="" position="600,1225" size="100,100">### ⚠️ CONTENT WARNING ⚠️
 
 This story is an early work in progress. This version is **unfinished and unstable**.
 
-This story is for **adults only**. It contains **niche fetish content**, including but not limited to **soft vore, sadism, digestion, and death**. Proceed at your own discretion.</tw-passagedata><tw-passagedata pid="95" name="warm-place-art" tags="Twine.image" position="600,1225" size="100,100">data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iOTgyIiBoZWlnaHQ9IjY5MCIgeG1sbnM6dj0iaHR0cHM6Ly92ZWN0YS5pby9uYW5vIj48ZGVmcz48cGF0aCBpZD0iQSIgZD0iTTgzMCA2OTVsLTguMzM4LTI1LjQ4NWMtLjg3MS0xLjQ5OS0xLjcwNC00LjU5MS0xLjg1LTYuODcxcy0xLjk0NC04LjA5Ny0zLjk5NS0xMi45MjUtMy40NjktMTEuMTI5LTMuMTUyLTE0LS4zODMtOS4zOTYtMS41NTgtMTQuNDk1LTIuNjk3LTExLjE0OC0zLjM3OS0xMy40MzdsLTQuNzc1LTE2LjYxOWMtMS45NDMtNi44NTMtMy42MjEtMTUuNDgxLTMuNzI4LTE5LjE3N3MtMS4xMzYtOC42MzQtMi4yODYtMTAuOTc2LTIuMjMxLTEzLjkxNS0yLjQwMS0yNS43MjItMS40NTctMjMuNjU5LTIuODU4LTI2LjM0NS0uOTE1LTguNzIyLS45MTUtOC43MjIgNS4wNjUtMy4zMzItLjI0NC01LjcxMWMtMS4zMjgtLjU5NS0xLjAyOS00LjE2NC4wMDgtNi45NzUgMS4xMzgtMy4wODQuNzYxLTcuMTQ1LS45NTItMTAuMjU1LTIuNjQ2LTQuODA3LTIuNTA4LTUuMjI4IDIuMDc4LTYuMzExIDIuMzU5LS41NTcgNS45NDYtMS42MzggNS45NDYtMS42MzhsLTUuODk2LTUuNDAxYy0zLjgyMi0yLjgwOS00Ljk5NC05LjY5LTUuMjEtMTUuOTU2LS4xOTEtNS41NDEtLjQzMy0xNS45MzEtMi4xMzctMjMuNjU4LTMuMTY4LTE0LjM2NC03LjkyMy0yOC41OC0xNC44NzYtNDEuNDkyLTMuOTctNy4zNzItMTUuMDUzLTIwLjAzNS0xNS4wNTMtMjAuMDM1cy00LjU2Mi01Ljg0Ny03LjUwNC03LjE3Ni0xNi4wMjEtMTcuNDIyLTIxLjMwOC0yNy44OThjLTIuNDQxLTQuODM2LTMuNDQzLTEyLjc4LTQuNTU1LTE1LjYzOHMtMTAuOTE4LTI1LjQ3NC0xMi4yMjctMzAuNzM0Yy0xLjMyOS01LjM0Ny01LjE1My0xMy45ODktOC4xMzUtMTkuMzAzbC04LjAwNC0xNC42NTJjLTEuNDE5LTIuNzQ3LTIuOTE2LTYuMzA4LTMuMzI3LTcuOTE4LS4zNDctMS4zNjIgMS4yODkgMS4zNjctMi43NjMtNS41MDktLjEyLS4yMDUuOTU2LTYuNzUzLjc4OC03Ljg3Mi0uMDQ1LS4yOTgtMy45MzkuMzIxLTMuOTM2IDAgLjAyMS0yLjQ5My43ODctNS41MTEuNzg3LTUuNTExcy00LjQ0OCAxLjM5NC00LjgwMS44MWMtNS4wNDktOC4zMzUtMTUuOTY4LTIxLjgwOC0xNi41NDgtMjQuOTg4cy0zOC4yNjEtNjcuNjYxLTM5LjY5MS02OS40OTVjLTIuMjIzLTIuODUxLTEuNjY3LTUuOCAzLjg1LTIwLjM5MyA1LjU0My0xNC42NjYgNi4yNy0xOC41NDUgNS4xODEtMjcuNjQ4LS42OTctNS44MjItMy42OTctMTMuODgtNi42NjctMTcuOTAzLTMuMDE2LTQuMDg4LTEwLjMzLTkuMjUxLTE2LjU2OC0xMS42OTgtNi4xNDItMi40MDktMTUuNjA0LTQuMDk2LTIxLjAyNi0zLjc0OXMtMTUuMTIzIDIuNzcyLTIxLjU2MiA1LjM4N2MtMTEuNjQxIDQuNzMxLTExLjc4MiA0LjcyMi0yNS45NDgtMS41NjMtNy44MzQtMy40NzUtMTkuNTk1LTguOTQ2LTI2LjEzNS0xMi4xNTlzLTE2LjcwMi03LjQ1OC0yMi41ODMtOS40MzNjLTYuMjQtMi4wOTctMTcuODQtMy40MDYtMjcuODYyLTMuMTQ2bC00MS4yNDQuODA4Yy0xMy4yMzkuMTk5LTMxLjI4NyAxLjgzNS00MC4xMDcgMy42MzNzLTIzLjI0NCA2LjYtMzIuMDUzIDEwLjY2NmMtMTEuMjU3IDUuMTk3LTIxLjc0MiAxMi45MzUtMzUuMjc2IDI2LjAzNy0xMi43MzIgMTIuMzI1LTIxLjU4IDIzLjE5NC0yNi4xMSAzMi4wNzQtNS40NDYgMTAuNjc1LTExLjE0NiAxNi44OTItMjcuNzkyIDMwLjMxMi0xMS41MTcgOS4yODQtMjQuNzMyIDE4Ljc4OC0yOS4zNjggMjEuMTJzLTExLjc1NiA2LjctMTUuODI1IDkuNzA3Yy00LjgwMiAzLjU1Mi03LjY0NCA3LjY5Ny04LjEwMSAxMS44MjItLjM4NyAzLjQ5NS4wMzMgOS40ODQuOTMyIDEzLjMxMnMyLjgxNyA4LjgyMSA0Ljc4NSA4LjY3OGMuNTQ1LS4wNCAyLjUxOC0uNTMyIDIuOTI3IDIuNjE5LjMzNCAyLjU3OC0uODA0IDguNjA4LTEuMDc5IDEwLjg0LS45NTkgNy43OTUtLjEyMiAxNC40MTEgMi4yMTUgMTkuNzA2IDIuNDk1IDUuNjUzIDYuMDg0IDguODU5IDEyLjM2IDExLjA0MyAxLjg0OC42NDMgNC4wMzggMS4yODMgNi4yNjIgMS44NDkgMS44MTQuNDYyIDMuNjUuODc1IDUuMzQgMS4yczMuMjM2LjU2MiA0LjQ2OC42NzNjMy45NzUuMzU1IDkuNDE5LS40NjggMTEuOSAyLjc2IDMuMzQ5IDQuMzU4LjY1OCAxNS4yNS0uNTMyIDE2LjQ3OS0xLjMyNSAxLjM2Ny00LjMyMS0zLjM0NC02LjcwOS02Ljc3NS0zLjkwMi01LjYwOS0zLjkwMi01LjYwOS0zLjU4NyA0LjQzNi4wMjYuODExLS4xMTcgMi40MTUtLjM1MiA0LjI4OC0uMDc5LjYyNS0zLjY0IDQuOTQtNC4zMDkgOS4wNzItLjk0NCA1LjgzNi4wMzEgOS40MzcgMS42NDEgMTcuNzE1IDEuMTg4IDYuMTE2IDQuNDIgMTMuNzA0IDcuMTgyIDE2Ljg1OXM5LjE0NCA3LjYwOSAxNC4xODMgOS44OTVjNy41ODEgMy40MzcgMTIuMTgxIDMuNjc5IDI2LjY1IDEuNCAxNy40ODctMi43NTUgMTcuNDg3LTIuNzU1IDIyLjQ5NCA3LjY2MiAyLjc1MyA1LjczIDguMDM2IDEyLjc2NiAxMS43MzggMTUuNjM0czcuMzY4IDcuOTMgOC4xNDcgMTEuMjQyIDMuMzkgNDQuMjE1IDMuMjY0IDUwLjk4Yy0uMDU2IDIuOTU4LjIyOSAzLjE1NC0uMDQ5IDYuMzcxLS4xNjcgMS45MzgtMS4yMTkgNC4yNTItMS4wNjYgOC44MjhsLjAzNyAxLjgzYy4wMSAxLjM4NCAxLjA5NSAyLjkwNiAxLjAyOSA0LjI5OS0uMDUyIDEuMTExLTEuMzk2IDEuODc0LTEuNTc0IDMuMTQ5LTIuNDEyIDE3LjI5NS03LjYzNCAzNC42MzQtOS44MDggNDIuNzkyLTMuMjM5IDEyLjE1Mi03LjAyOSAyNS41NzktOC40MjIgMjkuODM5cy00LjA2OCAxOC40MTgtNS45NDMgMzEuNDYyLTQuMzYzIDMzLjI1LTUuNTI5IDQ0LjkwMi0zLjkyNiAzMC4zMTYtNi4xMzQgNDEuNDczUzI3OCA2OTUgMjc4IDY5NWg1NTJ6Ii8+PC9kZWZzPjx1c2UgeGxpbms6aHJlZj0iI0EiIGZpbGw9IiNlZWUiLz48ZGVmcz48cGF0aCBpZD0iQiIgZD0iTTczMy41MTYgMzM5LjQwNmwtNS44MTMtOC44OS0yLjg3NS02LTMuMzEyLTEyLjU3OC05LjA0Ny0yMS45MDctNi4wNjMtMTcuMjE4LTMuNTE1LTcuNjg4LTEwLjI5Ny0xOS4wMTYtMS45MDYtNC4yOTYtMS4wMTYtMy41NjMtMi41NjMtNC4zOTEuODEzLTguMjgxLTMuODkxLjA0Ny43OTctNS42NDEtNS4xMjUuOTIyLTE0LjY3Mi0yMS4zMTItNC4zOS04Ljg3NS02LjQzOC0xMS42MjUtMzEuMzU5LTUzLjczNS0uMzQ0LTIuNzM0LjU5NC0zLjE0MSA4LjU3OC0yNC43ODEgMS4wNzgtNC43NS40MDYtNC4yODEtLjY4Ny04LjU2My0xLjgxMy02LjgxMi0zLjI2NS03LjQwNi0xLjczNS0yLjYxLTIuMjgxLTIuNDg0LTUuNzM0LTQuNS03Ljg2LTQuMjUtNy4xODctMi4yNjYtMTAuNTMxLTEuNzAzLTUuMTg4LjAzMS01LjEwOS43OTctMTEuNjEgMy4wNzgtMTEuNTE1IDQuMjY2LTMuNjcyLjUzMS0yLjM3NS0uMjY1LTkuNDIyLTMuNS0zMi42NDEtMTUuMTcyLTEyLjA3OC01LjE0MS04LjQ2OS0zLTguODQzLTEuNjg3LTcuNTc4LS43MTktNy43OTctLjIxOS01MS4wMTYgMS4wOTQtMjEuNzY2IDEuNzgxLTkuNzAzIDEuNDUzLTYuMzQzIDEuNDUzLTEyLjc5NyAzLjkzOC0xNC45MzggNS45NjktMTAuNDg0IDUuOTA2LTEwLjc5NyA3Ljk2OS0xNC4yNSAxMi45MDYtMTIuNDIyIDEzLjE0MS05IDExLjc1LTguNDg0IDE0LjM1OS0zLjk4NSA1LTUuMTI1IDUuMjM0LTEzLjY4NyAxMS43MzUtMTUuMjE5IDExLjY4Ny0xMC42NTYgNy4zNzUtMTAuNDg1IDUuOTUzLTkuMjY1IDYuMTI1LTMuMjAzIDIuODQ0LTIuODc1IDMuNzk3LTEuMzYgMy4xNzItLjQ2OCAyLjcwMy0uMDE2IDUuMDMxLjU2MiA1LjQwNiAxLjU5NCA2LjE1NyAxLjc2NiAzLjY1NiAxLjU5NCAxLjUgMi4zNDMuMzkxLjczNSAxLjIwMy4xODcgMi4zOS0xLjM1OSAxMS4yMTktLjA3OCA2LjgxMyAxLjIxOCA3LjIzNCAyLjYxIDYuMjUgMS44MjggMi42MjUgMi4xODcgMi4xODcgNS42MjUgMy4zMTMgNi4zNiAyLjA5NCA3LjA2MiAxLjY0IDQuNTE2LjY4OCA2LjkwNi4zNDQgMi4xNDEuNSAyLjI2NSAxLjQ1MyAxLjI5NyAyLjU0Ny40NTMgMy42MjUtLjI2NSAzLjc5Ni0uOTM4IDQuMjk3LS43MzQgMS43MDMtLjIxOS4xNTctLjY3Mi0uMjM1LS45ODQtLjkwNi01Ljk4NC04LjIwMy0xLjE3Mi0xLjI4MS0xLjMyOC4xODctLjUgMTIuNTQ3LTIuOTg1IDUuMjAzLTEuMzI4IDMuOTIyLS4yNSA3LjA3OCAyLjE0MSAxMi4wMTYgMi4yOTcgNy4yODEgMy4zOSA2Ljc5NyAzLjI5NyAzLjc2NiA3LjM5MSA1LjM3NSA3LjEwOSAzLjYwOSA1LjMxMyAxLjU5NCA0LjI4MS40MjIgNS4wNzgtLjE1NyAyMS4yNjYtMi44MjggMy4yNjUuMDc4IDIuNDA2LjgxMyAyLjQ4NSAyLjcwMyA0LjUxNSA4LjY1NiAyLjk2OSA0LjUzMSA0LjQ1MyA1LjQ1NCA0LjcxOSA0LjI2NSAyLjQ4NCAyLjgyOCAyLjU3OSA0LjA2My45MjEgMi42NCAxLjYxIDE5LjQ2OSAxLjM5IDI0LjIxOS4yMTkgMTIuMDE2LTEuMTcyIDkuMTI1LjA3OCAzLjAzMS45NjkgNC4wOTQtMS40NjkgMi42MDktMS45ODQgMTEuNTk0aC4wMTZsLTIuMzYgMTAuNjcyLTkuMjUgMzQuNTE1LTQuOTY4IDE3LjAxNi0yLjExIDkuNDg0LTQuMjk3IDI2LjI2Ni03LjA3OCA1Ny45MDYtNC4xMDkgMjQuNS01LjkwNiAyMS43MDMtMTYuNDY5IDU1LjQyMmg1NTMuMzQ0bC03LjQ4NS0yMy4yOTctMi4xNTYtNS41NDctMS43ODEtOC43NjUtNS4yMDMtMTUuMDE2LS45MDctNS4yOTctLjMyOC05LjI5Ny0xLjAzMS02LjE3Mi0zLjMxMy0xMy40NjgtNi4xMDktMjEuNTk0aC0uMDE2bC0yLjE0LTEwLjQyMmguMDE1bC0xLjE0LTkuOTY5LTIuNDIyLTguNTMxLTEuMjUtMTIuMTQxLTEuMTcyLTI1LjUtMS4yMDMtOC42NTYtMS40MDYtNC40MDYtLjQyMi0zLjE4OC4wMzEtMy43NjUgMS40MDYtMS4yOTcuODI4LTIuMDMxLS43NjUtMS43ODItMi4xNDEtMS40MjEtLjMxMi0uNjU3LjAxNS0yLjkzNyAxLjM3NS01Ljg2LS4xMDktMi43OTYtLjY4OC0yLjcxOS0yLjUtNS43MzUuMTg4LS41NzguOTA2LS41MzEgOC41NjMtMi4zNzUuMTQtLjU3OC03LjY0LTcuMTI1LTIuMTU3LTQuNDM4LTEuMTQtNi4wOTMtLjg0NC0xNi4xODgtMS4wNzgtOC44NTktMi4wNjMtOC45ODUtMy4wOTMtMTAuNjcxLTMuNzgyLTEwLjQzOC0zLjMyOC03LjYwOS0zLjUtNi44NzUtMy4wNzgtNC43NjYtMTMuMjE5LTE2LjU0Ny0zLjg5LTMuOTIyLTQuMTcyLTMuMDQ3LTUuMjgxLTUuODc1LTYuMzkxLTguMzEyeiIvPjwvZGVmcz48dXNlIGZpbGw9Im5vbmUiIHhsaW5rOmhyZWY9IiNCIi8+PHBhdGggZD0iTTY5OCA2OTVzLTMuMTU4LTUuMDc4LTYuMTA4LTkuMTM1LTguNDQ5LTEwLjcxMy0xMi4yMTktMTQuNzg5LTguODk3LTkuMTg5LTExLjM5NC0xMS4zNjItMTEuODE5LTguMTk4LTE4LjE2Mi0xMy4zODctMTIuMTA5LTEyLjAwNy0xNS4zNjYtMTUuMTUxLTguMTMyLTguNTQzLTEwLjgzNC0xMS45OTktNi41NzYtOC45MDMtOC42MS0xMi4xMDYtNC45MzEtOC4xNzQtNi40NDEtMTEuMDQ3Yy0xLjYyNy0zLjA5OC0yLjc0NC02LjEyLTIuNzQ0LTcuNDIyIDAtMS4yMDkuNTgtNC4xNjcgMS4yODgtNi41NzMuOTA2LTMuMDc2IDEuMjg1LTYuMjY5IDEuMjc2LTEwLjc1LS4wMDctMy41MDUtLjQzOS05LjgzMy0uOTU5LTE0LjA2MXMtMS4yNTktMTEuOTM0LTEuNjQtMTcuMTIzLTEuMjcxLTExLjc5NC0xLjk3Ni0xNC42NzctMi4zMTEtOC4wMzQtMy41NjYtMTEuNDQ3Yy0yLjI4My02LjIwNS0yLjI4My02LjIwNS0uMTg3LTkuNDM1IDEuMTUzLTEuNzc2IDQuNDY3LTYuMzc1IDcuMzYzLTEwLjIxOXM2LjUwMS04Ljk3NyA4LjAwOS0xMS40MDggMy41MzYtNi41MTkgNC41MDgtOS4wODUgMi4zOS03LjE4MyAzLjE0OS0xMC4yNTggMS45NTItOC42MDYgMi42NDktMTIuMjkgMS40NzMtOS4xNjUgMS43MjUtMTIuMTc5YTE0MC43MiAxNDAuNzIgMCAwIDAgLjM5MS0xMS4wMTVjLS4wMzctMy4wNDQtLjM4MS03LjE4Mi0uNzY3LTkuMTk1cy0xLjI5Ny00Ljg5Mi0yLjAyOC02LjM5OC0yLjM4MS0zLjkyNy0zLjY2OC01LjM3OS0zLjM2LTIuOTcyLTQuNjA2LTMuMzc3Yy0xLjcxMS0uNTU0LTMuMjE0LS40ODUtNi4xMzEuMjg0LTIuMTI1LjU2LTUuODU3IDEuODU2LTguMjkzIDIuODc5LTQuNDI5IDEuODYxLTQuNDI5IDEuODYxLTQuMDE3LjI2MS4yMjYtLjg4LjU5Ny00LjA1OC44MjQtNy4wNjMuMzMzLTQuNDA1LjE5Ni01Ljk2MS0uNzA1LTguMDM3LS42MTYtMS40MTYtMS44NzQtMy40MzktMi43OTYtNC40OTYtMS41NDUtMS43NzEtMi4wNjUtMS45MjItNi42MDgtMS45MjItNC42MjkgMC01LjA4Mi4xMzktNy4zOTMgMi4yNzEtMS4zNTQgMS4yNDktNC4xOSA0LjAwMS02LjMwMyA2LjExNnMtNS4yNDMgNi4wMDEtNi45NTcgOC42MzgtNC4yNjEgNy45ODQtNS42NjIgMTEuODgxLTMuNTg5IDExLjAxOC00Ljg2NSAxNS44MjMtMy4wMTEgMTEuODgxLTMuODU3IDE1LjcyNWwtMi42MTYgMTIuMzUyYy0uNTkzIDIuOTQ5LTEuNDI5IDUuODgzLTEuODU4IDYuNTIxLS41NDQuODA2LTIuNDM2IDEuMzYyLTYuMjI2IDEuODI5LTIuOTk1LjM2OS04LjYzNCAxLjE2LTEyLjUzIDEuNzU4cy05LjY5MyAxLjgwOC0xMi44ODEgMi42ODctOC4xMTUgMi41NzYtMTAuOTQ5IDMuNzY5LTcuNTM4IDMuNzEyLTEwLjQ1MyA1LjU5OS05LjU4MiA2LjgyMy0xNC44MTQgMTAuOTctMTEuMTM0IDkuMjg5LTEzLjExNiAxMS40MjktNS45MzcgNy4wODgtOC43ODggMTAuOTk3LTcuNTE4IDEwLjg5Ny0xMC4zNyAxNS41MjhjLTMuNjQ2IDUuOTE4LTQuNjUgOC42My02LjQ3NSAxMy4xNjEtMi44NTMgNy4wODQtMS4wNDMgMTcuMTM1LTYuOTUgMjEuODEzLS4yNDIuMTkxLTEuMjg3Ljg1NC0xLjI5MSA3LjM4OXMuNTQ0IDcuODc5IDIuMzk1IDkuODA0YzEuMDE5IDEuMDU4IDIuMDQxIDIuODYyIDIuMjczIDQuMDA4LjI1MyAxLjI0NyAyLjM5OCA0LjMzOCA1LjM0NSA3LjcwMSAyLjcwOCAzLjA4OSA3LjA5NyA3LjE2NSA5Ljc1MyA5LjA1N3M5LjMyMyA1LjgyNiAxNC44MTMgOC43NGM1Ljc0NCAzLjA0OCAxMS4wMjIgNi4zNjMgMTIuNDMgNy44MDUgMS4zNDYgMS4zNzkgMy4yMDIgNC4xODEgNC4xMjQgNi4yMjggMS41MjMgMy4zNzggMS42MTcgNC4wNTQgMS4wMTkgNy4zMzgtLjM2MiAxLjk5LTIuMjg3IDkuMjEyLTQuMjc4IDE2LjA0OXMtNC4yMjMgMTUuNjQ0LTQuOTYxIDE5LjU3Yy0uNzYyIDQuMDUtMS41MDIgMTEuMzgxLTEuNzExIDE2Ljk1MkM0NzUuOTk5IDY5MC42NTggNDc2IDY5NSA0NzYgNjk1aDIyMnoiLz48L3N2Zz4=</tw-passagedata></tw-storydata>
+This story is for **adults only**. It contains **niche fetish content**, including but not limited to **soft vore, sadism, digestion, and death**. Proceed at your own discretion.</tw-passagedata></tw-storydata>
 		<script>
 		(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";window.either=function(){for(var n=[],t=0;t<arguments.length;t++)if(arguments[t]instanceof Array)for(var r=0;r<arguments[t].length;r++)n.push(arguments[t][r]);else n.push(arguments[t]);return n[_.random(n.length-1)]},window.hasVisited=function(){var n=null;if(1==arguments.length)return null!=(n=window.story.passage(arguments[0]))&&window.story.history.includes(n.id);for(var t=0;t<arguments.length;t++)if(null==(n=window.story.passage(arguments[t]))||0==window.story.history.includes(n.id))return!1;return!0},window.visited=function(){for(var n=[],t=[],r=0;r<arguments.length;r++){var e=window.story.passage(arguments[r]);null!=e&&(t=window.story.history.filter(function(n){return n==e.id})),n.push(t.length)}return Math.min.apply(Math,n)},window.renderToSelector=function(n,t){var r=window.story.passage(t);null!=r&&$(n).html(r.render())},window.getStyles=function(){return $.when.apply($,$.map(arguments,function(n){return $.get(n,function(n){$("<style>"+n+"</style>").appendTo("head")})}))};
