@@ -88,27 +88,6 @@ body[data-tags~="dark"] {
   .logo__title {
     font-size: 1.9em;
   }
-}
-
-.title-art {
-  width: 100%;
-  height: 300px;
-  position: relative;
-  overflow: hidden;
-  margin-inline: auto;
-}
-.title-art canvas {
-  object-fit: cover;
-  position: absolute;
-  height: 100%;
-  width: 100%;
-}
-.title-art img {
-  position: absolute;
-  width: 100%;
-  max-height: 100%;
-  bottom: 0;
-  object-fit: contain;
 }</style>
 <style id="style-module-main" type="text/css">/* LICENSE: MIT-0 */
 
@@ -220,7 +199,7 @@ a:active {
 </head>
 	<body>
 		<tw-story tags></tw-story>
-		<!-- UUID://CFB4E6AB-1631-4384-B7DD-D3868FB9835A// --><tw-storydata name="A Warm Place to Stay" startnode="92" creator="Tweego" creator-version="2.1.1" ifid="CFB4E6AB-1631-4384-B7DD-D3868FB9835A" zoom="1" format="Snowman" format-version="2.0.2" options="" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">/* twine-user-stylesheet #1: "Twemoji style" */
+		<!-- UUID://CFB4E6AB-1631-4384-B7DD-D3868FB9835A// --><tw-storydata name="A Warm Place to Stay" startnode="92" creator="Tweego" creator-version="2.1.1+81d1d71" ifid="CFB4E6AB-1631-4384-B7DD-D3868FB9835A" zoom="1" format="Snowman" format-version="2.0.2" options="" hidden><style role="stylesheet" id="twine-user-stylesheet" type="text/twine-css">/* twine-user-stylesheet #1: "Twemoji style" */
 .emoji {
   object-fit: contain;
   width: 1.2em;
@@ -253,7 +232,49 @@ justify-content: space-between;
   content: "|";
   margin-right: 0.5rem;
 }
-/* twine-user-stylesheet #3: "Warp zone stylesheet" */
+/* twine-user-stylesheet #3: "snow.css" */
+.title-art {
+  background: black;
+  height: 300px;
+  margin-inline: auto;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+.title-art canvas {
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+}
+.title-art img {
+  bottom: 0;
+  max-height: 100%;
+  object-fit: contain;
+  position: absolute;
+  width: 100%;
+  z-index: 2;
+}
+
+.snow {
+  background: radial-gradient(white 0%, transparent 75%);
+  display: inline-block;
+  position: absolute;
+  animation: snowdrop var(--duration) infinite;
+  animation-delay: var(--delay);
+}
+
+@keyframes snowdrop {
+  from {
+    left: var(--offset-x-from);
+    top: -10%;
+  }
+  to {
+    left: var(--offset-x-to);
+    top: 110%;
+  }
+}
+/* twine-user-stylesheet #4: "Warp zone stylesheet" */
 .tag-badge {
   display: inline-block;
   background-color: #555;
@@ -505,79 +526,32 @@ $(document).keydown((e) => {
  * Snow.js, originally from kurisubrooks.com
  * This script is based on Snow.js, created by @kurisubrooks and @alecos71
  * License: MIT
-*/
+ */
 
-$(window).on("sm.passage.shown", function(){
-  if (!document.getElementById("sky")) {
+$(window).on("sm.passage.shown", function () {
+  const titleArt = document.querySelector(".title-art");
+  if (!titleArt) {
     return;
   }
-  //get the cancvas and context and store in vars
-  const canvas = document.getElementById("sky");
-  const ctx = canvas.getContext("2d");
-
-
-  function getDimensions() {
-    return [
-      parseFloat(getComputedStyle(canvas).width),
-      parseFloat(getComputedStyle(canvas).height)
-    ];
+  for (let i = 0; i < 30; i++) {
+    const el = document.createElement("div");
+    el.className = "snow";
+    // START AND END POSITION
+    const start = Math.random() * 150 - 50; // %
+    const end = start + Math.random() * 5 - 10; // %
+    el.style.setProperty("--offset-x-from", start + "%");
+    el.style.setProperty("--offset-x-to", end + "%");
+    // ANIMATION DURATION AND DELAY
+    const duration = Math.random() * 10 + 10; // s
+    const delay = Math.random() * 10 + 10; // s
+    el.style.setProperty("--duration", duration + "s");
+    el.style.setProperty("--delay", -delay + "s");
+    // SNOWFLAKE SIZE
+    const diameter = Math.random() * 10 + 10; // px
+    el.style.setProperty("width", diameter + "px");
+    el.style.setProperty("height", diameter + "px");
+    titleArt.appendChild(el);
   }
-  let [width, height] = getDimensions();
-  document.addEventListener("resize", () => {
-    [width, height] = getDimensions();
-  })
-
-
-  //generate the snowflakes and apply attributes
-  const maxFlakes = 50; //max flakes
-  const flakes = [];
-
-  //loop through the empty flakes and apply attributes
-  for(let i = 0; i < maxFlakes; i++)
-  {
-    flakes.push({
-      x: Math.random()*width,
-      y: Math.random()*height,
-      r: Math.random()*2+1, //min of 2px and max of 7px
-      d: (Math.random() + 1) / 3 //density of the flake
-    })
-  }
-
-  //draw flakes onto canvas
-  function drawFlakes()
-  {
-    ctx.clearRect(0, 0, width, height);
-    ctx.fillStyle = "white";
-    ctx.beginPath();
-    for(const f of flakes) {
-      ctx.moveTo(f.x, f.y);
-      ctx.arc(f.x, f.y, f.r, 0, Math.PI*2, true);
-    }
-    ctx.fill();
-    moveFlakes();
-  }
-
-  //animate the flakes
-  var angle = 0;
-  function moveFlakes(){
-    angle += 0.01;
-    for(var i = 0; i < maxFlakes; i++)
-    {
-      //store current flake
-      var f = flakes[i];
-
-      //update X and Y coordinates of each snowflakes
-      f.y += Math.pow(f.d, 2) + 1;
-      f.x += Math.sin(angle) * 0.5 * f.d;
-
-      //if the snowflake reaches the bottom, send a new one to the top
-      if(f.y > height){
-        flakes[i] = {x: Math.random()*width, y: 0, r: f.r, d: f.d};
-      }
-    }
-  }
-
-  setInterval(drawFlakes, 25);
 });
 /* twine-user-script #7: "util.js" */
 // LICENSE: MIT-0
@@ -626,24 +600,7 @@ $(window).on('sm.passage.shown', function (event, eventObject) {
 $(window).on('sm.story.started', function (event, {
   story
 }) {
-console.log(`${story.name} ${story.version}
-============================================================
-
-Hello, I'm Double-A. Thanks for playing my game!. If you're
-here, you're probably looking for juicy cheat codes, or
-you're stuck finding the more obscure achievements.
-
-To get the hidden zen ending, go outside and sit by yourself.
-
-To get the hidden broom closet ending, go to the broom
-closet.
-
-For the remaining endings, you'll just have to look around.
-
--AA
-
-=========================================================
-`);
+// insert console.log here
 });
 /* twine-user-script #9: "Misc story variables" */
 story.version = `v0.4.0`;
@@ -767,7 +724,7 @@ $(window).one("sm.story.started", () => {
 // If Twine "test", enable the debug menu
 if ($("tw-storydata").attr("options").includes("debug")) {
   storyFlags.assign({showDebug: true})
-}</script><tw-tag name="warm" color="red"></tw-tag><tw-tag name="flush" color="red"></tw-tag><tw-tag name="header" color="green"></tw-tag><tw-tag name="todo" color="orange"></tw-tag><tw-tag name="sidebar" color="green"></tw-tag><tw-tag name="start" color="green"></tw-tag><tw-tag name="vore" color="red"></tw-tag><tw-tag name="check" color="orange"></tw-tag><tw-tag name="checkpoint" color="yellow"></tw-tag><tw-tag name="cold" color="blue"></tw-tag><tw-passagedata pid="1" name="Header" tags="hide header" position="100,100" size="100,100">&lt;header.topbar.header-nav&gt;
+}</script><tw-tag name="check" color="orange"></tw-tag><tw-tag name="checkpoint" color="yellow"></tw-tag><tw-tag name="sidebar" color="green"></tw-tag><tw-tag name="start" color="green"></tw-tag><tw-tag name="warm" color="red"></tw-tag><tw-tag name="cold" color="blue"></tw-tag><tw-tag name="flush" color="red"></tw-tag><tw-tag name="header" color="green"></tw-tag><tw-tag name="todo" color="orange"></tw-tag><tw-tag name="vore" color="red"></tw-tag><tw-passagedata pid="1" name="Header" tags="hide header" position="100,100" size="100,100">&lt;header.topbar.header-nav&gt;
 	&lt;div.header-nav-group&gt;
           &lt;div&gt;&lt;a0 onclick=&quot;setup.restart()&quot;&gt;Restart&lt;/a&gt;&lt;/div&gt;
 	  &lt;div&gt;&lt;a0 onclick=&quot;setup.undo()&quot;&gt;Undo&lt;/a&gt;
@@ -1719,8 +1676,7 @@ tw-passage &gt; * {
 &lt;/style&gt;
 
 &lt;div class=&quot;title-art&quot;&gt;
-&lt;canvas id=&quot;sky&quot; style=&quot;display: block; background: black;&quot;&gt;&lt;/canvas&gt;
-&lt;img src=&quot;&lt;%= story.render(&quot;warm-place-art&quot;) %&gt;&quot;&gt;
+&lt;img src=&quot;assets/images/title-art.svg&quot; title=&quot;A minimalist animation of a rabbit and a polar bear standing side by side, amidst fallen snow.&quot;&gt;
 &lt;/div&gt;
 
 &lt;div class=&quot;logo&quot;&gt;
@@ -1764,7 +1720,7 @@ let unseenCount = checkpoints.filter(p =&gt; !seen.includes(p.id)).length;
 
 This story is an early work in progress. This version is **unfinished and unstable**.
 
-This story is for **adults only**. It contains **niche fetish content**, including but not limited to **soft vore, sadism, digestion, and death**. Proceed at your own discretion.</tw-passagedata><tw-passagedata pid="95" name="warm-place-art" tags="Twine.image" position="600,1225" size="100,100">data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iOTgyIiBoZWlnaHQ9IjY5MCIgeG1sbnM6dj0iaHR0cHM6Ly92ZWN0YS5pby9uYW5vIj48ZGVmcz48cGF0aCBpZD0iQSIgZD0iTTgzMCA2OTVsLTguMzM4LTI1LjQ4NWMtLjg3MS0xLjQ5OS0xLjcwNC00LjU5MS0xLjg1LTYuODcxcy0xLjk0NC04LjA5Ny0zLjk5NS0xMi45MjUtMy40NjktMTEuMTI5LTMuMTUyLTE0LS4zODMtOS4zOTYtMS41NTgtMTQuNDk1LTIuNjk3LTExLjE0OC0zLjM3OS0xMy40MzdsLTQuNzc1LTE2LjYxOWMtMS45NDMtNi44NTMtMy42MjEtMTUuNDgxLTMuNzI4LTE5LjE3N3MtMS4xMzYtOC42MzQtMi4yODYtMTAuOTc2LTIuMjMxLTEzLjkxNS0yLjQwMS0yNS43MjItMS40NTctMjMuNjU5LTIuODU4LTI2LjM0NS0uOTE1LTguNzIyLS45MTUtOC43MjIgNS4wNjUtMy4zMzItLjI0NC01LjcxMWMtMS4zMjgtLjU5NS0xLjAyOS00LjE2NC4wMDgtNi45NzUgMS4xMzgtMy4wODQuNzYxLTcuMTQ1LS45NTItMTAuMjU1LTIuNjQ2LTQuODA3LTIuNTA4LTUuMjI4IDIuMDc4LTYuMzExIDIuMzU5LS41NTcgNS45NDYtMS42MzggNS45NDYtMS42MzhsLTUuODk2LTUuNDAxYy0zLjgyMi0yLjgwOS00Ljk5NC05LjY5LTUuMjEtMTUuOTU2LS4xOTEtNS41NDEtLjQzMy0xNS45MzEtMi4xMzctMjMuNjU4LTMuMTY4LTE0LjM2NC03LjkyMy0yOC41OC0xNC44NzYtNDEuNDkyLTMuOTctNy4zNzItMTUuMDUzLTIwLjAzNS0xNS4wNTMtMjAuMDM1cy00LjU2Mi01Ljg0Ny03LjUwNC03LjE3Ni0xNi4wMjEtMTcuNDIyLTIxLjMwOC0yNy44OThjLTIuNDQxLTQuODM2LTMuNDQzLTEyLjc4LTQuNTU1LTE1LjYzOHMtMTAuOTE4LTI1LjQ3NC0xMi4yMjctMzAuNzM0Yy0xLjMyOS01LjM0Ny01LjE1My0xMy45ODktOC4xMzUtMTkuMzAzbC04LjAwNC0xNC42NTJjLTEuNDE5LTIuNzQ3LTIuOTE2LTYuMzA4LTMuMzI3LTcuOTE4LS4zNDctMS4zNjIgMS4yODkgMS4zNjctMi43NjMtNS41MDktLjEyLS4yMDUuOTU2LTYuNzUzLjc4OC03Ljg3Mi0uMDQ1LS4yOTgtMy45MzkuMzIxLTMuOTM2IDAgLjAyMS0yLjQ5My43ODctNS41MTEuNzg3LTUuNTExcy00LjQ0OCAxLjM5NC00LjgwMS44MWMtNS4wNDktOC4zMzUtMTUuOTY4LTIxLjgwOC0xNi41NDgtMjQuOTg4cy0zOC4yNjEtNjcuNjYxLTM5LjY5MS02OS40OTVjLTIuMjIzLTIuODUxLTEuNjY3LTUuOCAzLjg1LTIwLjM5MyA1LjU0My0xNC42NjYgNi4yNy0xOC41NDUgNS4xODEtMjcuNjQ4LS42OTctNS44MjItMy42OTctMTMuODgtNi42NjctMTcuOTAzLTMuMDE2LTQuMDg4LTEwLjMzLTkuMjUxLTE2LjU2OC0xMS42OTgtNi4xNDItMi40MDktMTUuNjA0LTQuMDk2LTIxLjAyNi0zLjc0OXMtMTUuMTIzIDIuNzcyLTIxLjU2MiA1LjM4N2MtMTEuNjQxIDQuNzMxLTExLjc4MiA0LjcyMi0yNS45NDgtMS41NjMtNy44MzQtMy40NzUtMTkuNTk1LTguOTQ2LTI2LjEzNS0xMi4xNTlzLTE2LjcwMi03LjQ1OC0yMi41ODMtOS40MzNjLTYuMjQtMi4wOTctMTcuODQtMy40MDYtMjcuODYyLTMuMTQ2bC00MS4yNDQuODA4Yy0xMy4yMzkuMTk5LTMxLjI4NyAxLjgzNS00MC4xMDcgMy42MzNzLTIzLjI0NCA2LjYtMzIuMDUzIDEwLjY2NmMtMTEuMjU3IDUuMTk3LTIxLjc0MiAxMi45MzUtMzUuMjc2IDI2LjAzNy0xMi43MzIgMTIuMzI1LTIxLjU4IDIzLjE5NC0yNi4xMSAzMi4wNzQtNS40NDYgMTAuNjc1LTExLjE0NiAxNi44OTItMjcuNzkyIDMwLjMxMi0xMS41MTcgOS4yODQtMjQuNzMyIDE4Ljc4OC0yOS4zNjggMjEuMTJzLTExLjc1NiA2LjctMTUuODI1IDkuNzA3Yy00LjgwMiAzLjU1Mi03LjY0NCA3LjY5Ny04LjEwMSAxMS44MjItLjM4NyAzLjQ5NS4wMzMgOS40ODQuOTMyIDEzLjMxMnMyLjgxNyA4LjgyMSA0Ljc4NSA4LjY3OGMuNTQ1LS4wNCAyLjUxOC0uNTMyIDIuOTI3IDIuNjE5LjMzNCAyLjU3OC0uODA0IDguNjA4LTEuMDc5IDEwLjg0LS45NTkgNy43OTUtLjEyMiAxNC40MTEgMi4yMTUgMTkuNzA2IDIuNDk1IDUuNjUzIDYuMDg0IDguODU5IDEyLjM2IDExLjA0MyAxLjg0OC42NDMgNC4wMzggMS4yODMgNi4yNjIgMS44NDkgMS44MTQuNDYyIDMuNjUuODc1IDUuMzQgMS4yczMuMjM2LjU2MiA0LjQ2OC42NzNjMy45NzUuMzU1IDkuNDE5LS40NjggMTEuOSAyLjc2IDMuMzQ5IDQuMzU4LjY1OCAxNS4yNS0uNTMyIDE2LjQ3OS0xLjMyNSAxLjM2Ny00LjMyMS0zLjM0NC02LjcwOS02Ljc3NS0zLjkwMi01LjYwOS0zLjkwMi01LjYwOS0zLjU4NyA0LjQzNi4wMjYuODExLS4xMTcgMi40MTUtLjM1MiA0LjI4OC0uMDc5LjYyNS0zLjY0IDQuOTQtNC4zMDkgOS4wNzItLjk0NCA1LjgzNi4wMzEgOS40MzcgMS42NDEgMTcuNzE1IDEuMTg4IDYuMTE2IDQuNDIgMTMuNzA0IDcuMTgyIDE2Ljg1OXM5LjE0NCA3LjYwOSAxNC4xODMgOS44OTVjNy41ODEgMy40MzcgMTIuMTgxIDMuNjc5IDI2LjY1IDEuNCAxNy40ODctMi43NTUgMTcuNDg3LTIuNzU1IDIyLjQ5NCA3LjY2MiAyLjc1MyA1LjczIDguMDM2IDEyLjc2NiAxMS43MzggMTUuNjM0czcuMzY4IDcuOTMgOC4xNDcgMTEuMjQyIDMuMzkgNDQuMjE1IDMuMjY0IDUwLjk4Yy0uMDU2IDIuOTU4LjIyOSAzLjE1NC0uMDQ5IDYuMzcxLS4xNjcgMS45MzgtMS4yMTkgNC4yNTItMS4wNjYgOC44MjhsLjAzNyAxLjgzYy4wMSAxLjM4NCAxLjA5NSAyLjkwNiAxLjAyOSA0LjI5OS0uMDUyIDEuMTExLTEuMzk2IDEuODc0LTEuNTc0IDMuMTQ5LTIuNDEyIDE3LjI5NS03LjYzNCAzNC42MzQtOS44MDggNDIuNzkyLTMuMjM5IDEyLjE1Mi03LjAyOSAyNS41NzktOC40MjIgMjkuODM5cy00LjA2OCAxOC40MTgtNS45NDMgMzEuNDYyLTQuMzYzIDMzLjI1LTUuNTI5IDQ0LjkwMi0zLjkyNiAzMC4zMTYtNi4xMzQgNDEuNDczUzI3OCA2OTUgMjc4IDY5NWg1NTJ6Ii8+PC9kZWZzPjx1c2UgeGxpbms6aHJlZj0iI0EiIGZpbGw9IiNlZWUiLz48ZGVmcz48cGF0aCBpZD0iQiIgZD0iTTczMy41MTYgMzM5LjQwNmwtNS44MTMtOC44OS0yLjg3NS02LTMuMzEyLTEyLjU3OC05LjA0Ny0yMS45MDctNi4wNjMtMTcuMjE4LTMuNTE1LTcuNjg4LTEwLjI5Ny0xOS4wMTYtMS45MDYtNC4yOTYtMS4wMTYtMy41NjMtMi41NjMtNC4zOTEuODEzLTguMjgxLTMuODkxLjA0Ny43OTctNS42NDEtNS4xMjUuOTIyLTE0LjY3Mi0yMS4zMTItNC4zOS04Ljg3NS02LjQzOC0xMS42MjUtMzEuMzU5LTUzLjczNS0uMzQ0LTIuNzM0LjU5NC0zLjE0MSA4LjU3OC0yNC43ODEgMS4wNzgtNC43NS40MDYtNC4yODEtLjY4Ny04LjU2My0xLjgxMy02LjgxMi0zLjI2NS03LjQwNi0xLjczNS0yLjYxLTIuMjgxLTIuNDg0LTUuNzM0LTQuNS03Ljg2LTQuMjUtNy4xODctMi4yNjYtMTAuNTMxLTEuNzAzLTUuMTg4LjAzMS01LjEwOS43OTctMTEuNjEgMy4wNzgtMTEuNTE1IDQuMjY2LTMuNjcyLjUzMS0yLjM3NS0uMjY1LTkuNDIyLTMuNS0zMi42NDEtMTUuMTcyLTEyLjA3OC01LjE0MS04LjQ2OS0zLTguODQzLTEuNjg3LTcuNTc4LS43MTktNy43OTctLjIxOS01MS4wMTYgMS4wOTQtMjEuNzY2IDEuNzgxLTkuNzAzIDEuNDUzLTYuMzQzIDEuNDUzLTEyLjc5NyAzLjkzOC0xNC45MzggNS45NjktMTAuNDg0IDUuOTA2LTEwLjc5NyA3Ljk2OS0xNC4yNSAxMi45MDYtMTIuNDIyIDEzLjE0MS05IDExLjc1LTguNDg0IDE0LjM1OS0zLjk4NSA1LTUuMTI1IDUuMjM0LTEzLjY4NyAxMS43MzUtMTUuMjE5IDExLjY4Ny0xMC42NTYgNy4zNzUtMTAuNDg1IDUuOTUzLTkuMjY1IDYuMTI1LTMuMjAzIDIuODQ0LTIuODc1IDMuNzk3LTEuMzYgMy4xNzItLjQ2OCAyLjcwMy0uMDE2IDUuMDMxLjU2MiA1LjQwNiAxLjU5NCA2LjE1NyAxLjc2NiAzLjY1NiAxLjU5NCAxLjUgMi4zNDMuMzkxLjczNSAxLjIwMy4xODcgMi4zOS0xLjM1OSAxMS4yMTktLjA3OCA2LjgxMyAxLjIxOCA3LjIzNCAyLjYxIDYuMjUgMS44MjggMi42MjUgMi4xODcgMi4xODcgNS42MjUgMy4zMTMgNi4zNiAyLjA5NCA3LjA2MiAxLjY0IDQuNTE2LjY4OCA2LjkwNi4zNDQgMi4xNDEuNSAyLjI2NSAxLjQ1MyAxLjI5NyAyLjU0Ny40NTMgMy42MjUtLjI2NSAzLjc5Ni0uOTM4IDQuMjk3LS43MzQgMS43MDMtLjIxOS4xNTctLjY3Mi0uMjM1LS45ODQtLjkwNi01Ljk4NC04LjIwMy0xLjE3Mi0xLjI4MS0xLjMyOC4xODctLjUgMTIuNTQ3LTIuOTg1IDUuMjAzLTEuMzI4IDMuOTIyLS4yNSA3LjA3OCAyLjE0MSAxMi4wMTYgMi4yOTcgNy4yODEgMy4zOSA2Ljc5NyAzLjI5NyAzLjc2NiA3LjM5MSA1LjM3NSA3LjEwOSAzLjYwOSA1LjMxMyAxLjU5NCA0LjI4MS40MjIgNS4wNzgtLjE1NyAyMS4yNjYtMi44MjggMy4yNjUuMDc4IDIuNDA2LjgxMyAyLjQ4NSAyLjcwMyA0LjUxNSA4LjY1NiAyLjk2OSA0LjUzMSA0LjQ1MyA1LjQ1NCA0LjcxOSA0LjI2NSAyLjQ4NCAyLjgyOCAyLjU3OSA0LjA2My45MjEgMi42NCAxLjYxIDE5LjQ2OSAxLjM5IDI0LjIxOS4yMTkgMTIuMDE2LTEuMTcyIDkuMTI1LjA3OCAzLjAzMS45NjkgNC4wOTQtMS40NjkgMi42MDktMS45ODQgMTEuNTk0aC4wMTZsLTIuMzYgMTAuNjcyLTkuMjUgMzQuNTE1LTQuOTY4IDE3LjAxNi0yLjExIDkuNDg0LTQuMjk3IDI2LjI2Ni03LjA3OCA1Ny45MDYtNC4xMDkgMjQuNS01LjkwNiAyMS43MDMtMTYuNDY5IDU1LjQyMmg1NTMuMzQ0bC03LjQ4NS0yMy4yOTctMi4xNTYtNS41NDctMS43ODEtOC43NjUtNS4yMDMtMTUuMDE2LS45MDctNS4yOTctLjMyOC05LjI5Ny0xLjAzMS02LjE3Mi0zLjMxMy0xMy40NjgtNi4xMDktMjEuNTk0aC0uMDE2bC0yLjE0LTEwLjQyMmguMDE1bC0xLjE0LTkuOTY5LTIuNDIyLTguNTMxLTEuMjUtMTIuMTQxLTEuMTcyLTI1LjUtMS4yMDMtOC42NTYtMS40MDYtNC40MDYtLjQyMi0zLjE4OC4wMzEtMy43NjUgMS40MDYtMS4yOTcuODI4LTIuMDMxLS43NjUtMS43ODItMi4xNDEtMS40MjEtLjMxMi0uNjU3LjAxNS0yLjkzNyAxLjM3NS01Ljg2LS4xMDktMi43OTYtLjY4OC0yLjcxOS0yLjUtNS43MzUuMTg4LS41NzguOTA2LS41MzEgOC41NjMtMi4zNzUuMTQtLjU3OC03LjY0LTcuMTI1LTIuMTU3LTQuNDM4LTEuMTQtNi4wOTMtLjg0NC0xNi4xODgtMS4wNzgtOC44NTktMi4wNjMtOC45ODUtMy4wOTMtMTAuNjcxLTMuNzgyLTEwLjQzOC0zLjMyOC03LjYwOS0zLjUtNi44NzUtMy4wNzgtNC43NjYtMTMuMjE5LTE2LjU0Ny0zLjg5LTMuOTIyLTQuMTcyLTMuMDQ3LTUuMjgxLTUuODc1LTYuMzkxLTguMzEyeiIvPjwvZGVmcz48dXNlIGZpbGw9Im5vbmUiIHhsaW5rOmhyZWY9IiNCIi8+PHBhdGggZD0iTTY5OCA2OTVzLTMuMTU4LTUuMDc4LTYuMTA4LTkuMTM1LTguNDQ5LTEwLjcxMy0xMi4yMTktMTQuNzg5LTguODk3LTkuMTg5LTExLjM5NC0xMS4zNjItMTEuODE5LTguMTk4LTE4LjE2Mi0xMy4zODctMTIuMTA5LTEyLjAwNy0xNS4zNjYtMTUuMTUxLTguMTMyLTguNTQzLTEwLjgzNC0xMS45OTktNi41NzYtOC45MDMtOC42MS0xMi4xMDYtNC45MzEtOC4xNzQtNi40NDEtMTEuMDQ3Yy0xLjYyNy0zLjA5OC0yLjc0NC02LjEyLTIuNzQ0LTcuNDIyIDAtMS4yMDkuNTgtNC4xNjcgMS4yODgtNi41NzMuOTA2LTMuMDc2IDEuMjg1LTYuMjY5IDEuMjc2LTEwLjc1LS4wMDctMy41MDUtLjQzOS05LjgzMy0uOTU5LTE0LjA2MXMtMS4yNTktMTEuOTM0LTEuNjQtMTcuMTIzLTEuMjcxLTExLjc5NC0xLjk3Ni0xNC42NzctMi4zMTEtOC4wMzQtMy41NjYtMTEuNDQ3Yy0yLjI4My02LjIwNS0yLjI4My02LjIwNS0uMTg3LTkuNDM1IDEuMTUzLTEuNzc2IDQuNDY3LTYuMzc1IDcuMzYzLTEwLjIxOXM2LjUwMS04Ljk3NyA4LjAwOS0xMS40MDggMy41MzYtNi41MTkgNC41MDgtOS4wODUgMi4zOS03LjE4MyAzLjE0OS0xMC4yNTggMS45NTItOC42MDYgMi42NDktMTIuMjkgMS40NzMtOS4xNjUgMS43MjUtMTIuMTc5YTE0MC43MiAxNDAuNzIgMCAwIDAgLjM5MS0xMS4wMTVjLS4wMzctMy4wNDQtLjM4MS03LjE4Mi0uNzY3LTkuMTk1cy0xLjI5Ny00Ljg5Mi0yLjAyOC02LjM5OC0yLjM4MS0zLjkyNy0zLjY2OC01LjM3OS0zLjM2LTIuOTcyLTQuNjA2LTMuMzc3Yy0xLjcxMS0uNTU0LTMuMjE0LS40ODUtNi4xMzEuMjg0LTIuMTI1LjU2LTUuODU3IDEuODU2LTguMjkzIDIuODc5LTQuNDI5IDEuODYxLTQuNDI5IDEuODYxLTQuMDE3LjI2MS4yMjYtLjg4LjU5Ny00LjA1OC44MjQtNy4wNjMuMzMzLTQuNDA1LjE5Ni01Ljk2MS0uNzA1LTguMDM3LS42MTYtMS40MTYtMS44NzQtMy40MzktMi43OTYtNC40OTYtMS41NDUtMS43NzEtMi4wNjUtMS45MjItNi42MDgtMS45MjItNC42MjkgMC01LjA4Mi4xMzktNy4zOTMgMi4yNzEtMS4zNTQgMS4yNDktNC4xOSA0LjAwMS02LjMwMyA2LjExNnMtNS4yNDMgNi4wMDEtNi45NTcgOC42MzgtNC4yNjEgNy45ODQtNS42NjIgMTEuODgxLTMuNTg5IDExLjAxOC00Ljg2NSAxNS44MjMtMy4wMTEgMTEuODgxLTMuODU3IDE1LjcyNWwtMi42MTYgMTIuMzUyYy0uNTkzIDIuOTQ5LTEuNDI5IDUuODgzLTEuODU4IDYuNTIxLS41NDQuODA2LTIuNDM2IDEuMzYyLTYuMjI2IDEuODI5LTIuOTk1LjM2OS04LjYzNCAxLjE2LTEyLjUzIDEuNzU4cy05LjY5MyAxLjgwOC0xMi44ODEgMi42ODctOC4xMTUgMi41NzYtMTAuOTQ5IDMuNzY5LTcuNTM4IDMuNzEyLTEwLjQ1MyA1LjU5OS05LjU4MiA2LjgyMy0xNC44MTQgMTAuOTctMTEuMTM0IDkuMjg5LTEzLjExNiAxMS40MjktNS45MzcgNy4wODgtOC43ODggMTAuOTk3LTcuNTE4IDEwLjg5Ny0xMC4zNyAxNS41MjhjLTMuNjQ2IDUuOTE4LTQuNjUgOC42My02LjQ3NSAxMy4xNjEtMi44NTMgNy4wODQtMS4wNDMgMTcuMTM1LTYuOTUgMjEuODEzLS4yNDIuMTkxLTEuMjg3Ljg1NC0xLjI5MSA3LjM4OXMuNTQ0IDcuODc5IDIuMzk1IDkuODA0YzEuMDE5IDEuMDU4IDIuMDQxIDIuODYyIDIuMjczIDQuMDA4LjI1MyAxLjI0NyAyLjM5OCA0LjMzOCA1LjM0NSA3LjcwMSAyLjcwOCAzLjA4OSA3LjA5NyA3LjE2NSA5Ljc1MyA5LjA1N3M5LjMyMyA1LjgyNiAxNC44MTMgOC43NGM1Ljc0NCAzLjA0OCAxMS4wMjIgNi4zNjMgMTIuNDMgNy44MDUgMS4zNDYgMS4zNzkgMy4yMDIgNC4xODEgNC4xMjQgNi4yMjggMS41MjMgMy4zNzggMS42MTcgNC4wNTQgMS4wMTkgNy4zMzgtLjM2MiAxLjk5LTIuMjg3IDkuMjEyLTQuMjc4IDE2LjA0OXMtNC4yMjMgMTUuNjQ0LTQuOTYxIDE5LjU3Yy0uNzYyIDQuMDUtMS41MDIgMTEuMzgxLTEuNzExIDE2Ljk1MkM0NzUuOTk5IDY5MC42NTggNDc2IDY5NSA0NzYgNjk1aDIyMnoiLz48L3N2Zz4=</tw-passagedata></tw-storydata>
+This story is for **adults only**. It contains **niche fetish content**, including but not limited to **soft vore, sadism, digestion, and death**. Proceed at your own discretion.</tw-passagedata></tw-storydata>
 		<script>
 		(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 "use strict";window.either=function(){for(var n=[],t=0;t<arguments.length;t++)if(arguments[t]instanceof Array)for(var r=0;r<arguments[t].length;r++)n.push(arguments[t][r]);else n.push(arguments[t]);return n[_.random(n.length-1)]},window.hasVisited=function(){var n=null;if(1==arguments.length)return null!=(n=window.story.passage(arguments[0]))&&window.story.history.includes(n.id);for(var t=0;t<arguments.length;t++)if(null==(n=window.story.passage(arguments[t]))||0==window.story.history.includes(n.id))return!1;return!0},window.visited=function(){for(var n=[],t=[],r=0;r<arguments.length;r++){var e=window.story.passage(arguments[r]);null!=e&&(t=window.story.history.filter(function(n){return n==e.id})),n.push(t.length)}return Math.min.apply(Math,n)},window.renderToSelector=function(n,t){var r=window.story.passage(t);null!=r&&$(n).html(r.render())},window.getStyles=function(){return $.when.apply($,$.map(arguments,function(n){return $.get(n,function(n){$("<style>"+n+"</style>").appendTo("head")})}))};
