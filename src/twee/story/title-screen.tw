@@ -30,8 +30,7 @@ tw-passage > * {
 </style>
 
 <div class="title-art">
-<canvas id="sky" style="display: block; background: black;"></canvas>
-<img src="<%= story.render("warm-place-art") %>">
+<img src="assets/images/title-art.svg" title="A minimalist animation of a rabbit and a polar bear standing side by side, amidst fallen snow.">
 </div>
 
 <div class="logo">

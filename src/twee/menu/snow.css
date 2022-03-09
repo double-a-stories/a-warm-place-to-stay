@@ -1,0 +1,39 @@
+.snow {
+  background: radial-gradient(white 0%, transparent 75%);
+  border-radius: 100%;
+  display: inline-block;
+  position: absolute;
+  animation: snowdrop infinite;
+}
+@keyframes snowdrop {
+  from {
+    left: var(--offset-x-start);
+    top: -10%;
+  }
+  to {
+    left: calc(var(--offset-x-start) + var(--offset-x-delta));
+    top: 110%;
+  }
+}
+.title-art {
+  background: black;
+  height: 300px;
+  margin-inline: auto;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+.title-art canvas {
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+}
+.title-art img {
+  bottom: 0;
+  max-height: 100%;
+  object-fit: contain;
+  position: absolute;
+  width: 100%;
+  z-index: 2;
+}
